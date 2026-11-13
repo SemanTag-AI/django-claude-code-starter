@@ -17,8 +17,11 @@ def record_review(document: Document, reviewer: AbstractBaseUser, decision: Stat
     at the same moment exactly one is recorded.
 
     Raises:
+        ValueError: if the decision is not an approval or a rejection.
         PermissionDenied: if this reviewer may not review this document.
     """
+    if decision not in (Status.APPROVED, Status.REJECTED):
+        raise ValueError("A review is an approval or a rejection.")
     if not may_review(document, reviewer):
         raise PermissionDenied("Whoever submitted a document does not review it.")
     changed = Document.objects.filter(pk=document.pk, status=Status.WAITING).update(

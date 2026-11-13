@@ -53,3 +53,24 @@ Feature: The dashboard counts where the documents stand
       | approved | 0      |
       | rejected | 0      |
     And the dashboard says there are no documents yet
+
+  Scenario: The list of documents to review starts with the longest wait and shows five at most
+    Given these documents:
+      | title      | submitted by | days ago | status  |
+      | Document A | alice        | 1        | waiting |
+      | Document B | alice        | 5        | waiting |
+      | Document C | alice        | 3        | waiting |
+      | Document D | alice        | 40       | waiting |
+      | Document E | alice        | 2        | waiting |
+      | Document F | alice        | 4        | waiting |
+      | Document G | bob          | 50       | waiting |
+    And bob is signed in
+    When he opens the dashboard
+    Then the list of documents to review holds, in this order:
+      | title      |
+      | Document D |
+      | Document B |
+      | Document F |
+      | Document C |
+      | Document E |
+    And the dashboard says that 6 documents wait for his review

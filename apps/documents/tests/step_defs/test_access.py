@@ -7,7 +7,7 @@ from django.test import Client
 from django.urls import reverse
 from pytest_bdd import given, parsers, scenarios, then, when
 
-from .conftest import PAGES, PASSWORD, shown
+from .conftest import PAGES, PASSWORD, shown, user_named
 
 scenarios("../features/access.feature")
 
@@ -22,9 +22,10 @@ def sign_in_wrong(client: Client, context: dict, name: str) -> None:
     context["response"] = client.post(reverse("login"), {"username": name, "password": "not-the-password"})
 
 
-@when("he signs out")
-def sign_out(client: Client, context: dict) -> None:
-    context["response"] = client.post(reverse("logout"))
+@given(parsers.parse("{name} was signed in and has signed out"))
+def signed_out(client: Client, name: str) -> None:
+    client.force_login(user_named(name))
+    assert client.post(reverse("logout")).status_code == 302
 
 
 @then("the sign-in page says the name and password do not match")

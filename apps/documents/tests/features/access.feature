@@ -68,10 +68,13 @@ Feature: Only signed-in users see the register
     Then the sign-in page says the name and password do not match
 
   Scenario: After signing out the register is closed again
-    Given bob is signed in
-    When he signs out
-    And a visitor opens the dashboard
+    Given bob was signed in and has signed out
+    When a visitor opens the dashboard
     Then the visitor is sent to the sign-in page
+
+  Scenario: The health address answers without a sign-in
+    When a visitor opens the health address
+    Then the page opens
 
   Scenario: A document that does not exist is reported as not found
     Given bob is signed in

@@ -5,6 +5,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 from django.utils import timezone
 
 from apps.documents.choices import Status, Tag
@@ -37,7 +38,10 @@ class Command(BaseCommand):
     help = "Create two demo users and a dozen documents. Only works with debug on."
 
     def handle(self, *args: object, **options: object) -> None:
-        """Refuse outside development, do nothing the second time, otherwise fill the register."""
+        """Refuse outside development, do nothing the second time, otherwise fill the register.
+
+        All or nothing: half a set of demo data would block the next attempt.
+        """
         if not settings.DEBUG:
             raise CommandError("The demo users have a public password. Refusing to create them with debug off.")
         users = get_user_model().objects
@@ -45,22 +49,23 @@ class Command(BaseCommand):
             self.stdout.write("The demo data is already there. Nothing was created.")
             return
 
-        people = {name: users.create_user(username=name, password=DEMO_PASSWORD) for name in DEMO_USERS}
-        now = timezone.now()
-        for title, submitter, days_ago, status, tags in DEMO_DOCUMENTS:
-            reviewed = status != Status.WAITING
-            reviewer = next(person for name, person in people.items() if name != submitter)
-            submitted_at = now - timedelta(days=days_ago)
-            Document.objects.create(
-                title=title,
-                body=f"This is where the text of the document '{title}' would be.",
-                tags=[tag.value for tag in tags],
-                status=status,
-                submitted_by=people[submitter],
-                submitted_at=submitted_at,
-                reviewed_by=reviewer if reviewed else None,
-                reviewed_at=submitted_at + timedelta(days=2) if reviewed else None,
-            )
+        with transaction.atomic():
+            people = {name: users.create_user(username=name, password=DEMO_PASSWORD) for name in DEMO_USERS}
+            now = timezone.now()
+            for title, submitter, days_ago, status, tags in DEMO_DOCUMENTS:
+                reviewed = status != Status.WAITING
+                reviewer = next(person for name, person in people.items() if name != submitter)
+                submitted_at = now - timedelta(days=days_ago)
+                Document.objects.create(
+                    title=title,
+                    body=f"This is where the text of the document '{title}' would be.",
+                    tags=[tag.value for tag in tags],
+                    status=status,
+                    submitted_by=people[submitter],
+                    submitted_at=submitted_at,
+                    reviewed_by=reviewer if reviewed else None,
+                    reviewed_at=submitted_at + timedelta(days=2) if reviewed else None,
+                )
         self.stdout.write(
             self.style.SUCCESS(
                 f"Created the users {' and '.join(DEMO_USERS)} (password: {DEMO_PASSWORD}) "

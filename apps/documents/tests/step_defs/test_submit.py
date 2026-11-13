@@ -2,7 +2,7 @@
 
 from django.test import Client
 from django.urls import reverse
-from pytest_bdd import parsers, scenarios, then, when
+from pytest_bdd import given, parsers, scenarios, then, when
 
 from apps.documents.choices import Status
 from apps.documents.models import Document
@@ -27,6 +27,7 @@ def submit_without_title(client: Client, context: dict) -> None:
     submit(client, context, "", ["policy"])
 
 
+@given(parsers.parse('she has submitted a document with the title "{title}" and no tags'))
 @when(parsers.parse('she submits a document with the title "{title}" and no tags'))
 def submit_without_tags(client: Client, context: dict, title: str) -> None:
     submit(client, context, title, [])
@@ -70,10 +71,18 @@ def not_a_valid_choice(context: dict, value: str) -> None:
     assert any(value in error and "not a valid choice" in error for error in shown(context["response"], "field-error"))
 
 
-@then("the form says the title is too long")
-def title_too_long(context: dict) -> None:
+@then("the document is accepted")
+def accepted(context: dict) -> None:
+    assert context["response"].status_code == 200
+    assert shown(context["response"], "field-error") == []
+    assert Document.objects.count() == 1
+
+
+@then("the document is refused because it is too long")
+def refused_too_long(context: dict) -> None:
     assert context["response"].status_code == 200
     assert any("at most 200 characters" in error for error in shown(context["response"], "field-error"))
+    assert Document.objects.count() == 0
 
 
 @then(parsers.parse('the page shows the title "{title}" as plain text'))

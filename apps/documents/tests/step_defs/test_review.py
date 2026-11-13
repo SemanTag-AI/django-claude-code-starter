@@ -1,5 +1,6 @@
 """Step definitions for review.feature."""
 
+from django.db import IntegrityError, transaction
 from django.test import Client
 from django.utils import timezone
 from pytest_bdd import given, parsers, scenarios, then, when
@@ -58,3 +59,27 @@ def reviewed_by(title: str, status: str, name: str) -> None:
 def already_reviewed(context: dict) -> None:
     assert context["response"].status_code == 200
     assert any("already reviewed" in message for message in shown(context["response"], "message"))
+
+
+def write_straight_into_the_register(context: dict, title: str, **values: object) -> None:
+    """Go around the pages and the rules, the way a bug or a script would."""
+    try:
+        with transaction.atomic():
+            Document.objects.filter(title=title).update(status=Status.APPROVED, reviewed_at=timezone.now(), **values)
+    except IntegrityError as refusal:
+        context["refusal"] = refusal
+
+
+@when(parsers.parse('a review of the document "{title}" by {name} is written straight into the register'))
+def review_by_submitter(context: dict, title: str, name: str) -> None:
+    write_straight_into_the_register(context, title, reviewed_by=user_named(name))
+
+
+@when(parsers.parse('an approval of the document "{title}" without a reviewer is written straight into the register'))
+def approval_without_reviewer(context: dict, title: str) -> None:
+    write_straight_into_the_register(context, title)
+
+
+@then("the register refuses it")
+def register_refuses(context: dict) -> None:
+    assert "refusal" in context, "the register accepted what it should have refused"

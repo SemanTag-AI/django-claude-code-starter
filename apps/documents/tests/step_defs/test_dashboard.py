@@ -46,3 +46,13 @@ def marked_overdue(context: dict, title: str) -> None:
 @then("the dashboard says there are no documents yet")
 def no_documents(context: dict) -> None:
     assert shown(context["response"], "no-documents") != []
+
+
+@then("the list of documents to review holds, in this order:")
+def to_review_in_order(context: dict, datatable: list[list[str]]) -> None:
+    assert shown(context["response"], "to-review-title") == [row["title"] for row in rows(datatable)]
+
+
+@then(parsers.parse("the dashboard says that {number:d} documents wait for his review"))
+def for_you(context: dict, number: int) -> None:
+    assert shown(context["response"], "for-you-count") == [str(number)]

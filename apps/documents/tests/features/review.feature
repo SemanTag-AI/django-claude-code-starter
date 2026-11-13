@@ -46,3 +46,13 @@ Feature: A document is reviewed by somebody who did not submit it
     When he sends the decision "waiting" for the document "Access policy"
     Then the request is not accepted
     And the document "Access policy" still waits for a review
+
+  Scenario: The register itself refuses a review by the submitter
+    When a review of the document "Access policy" by alice is written straight into the register
+    Then the register refuses it
+    And the document "Access policy" still waits for a review
+
+  Scenario: The register itself refuses an approval without a reviewer
+    When an approval of the document "Access policy" without a reviewer is written straight into the register
+    Then the register refuses it
+    And the document "Access policy" still waits for a review

@@ -22,6 +22,7 @@ PAGES = {
     "the list of documents": "documents:list",
     "the form for a new document": "documents:new",
     "the sign-in page": "login",
+    "the health address": "health",
 }
 
 

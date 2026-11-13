@@ -27,12 +27,17 @@ Feature: Submitting a document for review
     Then the form says "food" is not a valid choice
     And the register holds no documents
 
-  Scenario: A title of more than 200 characters is refused
-    When she submits a document with a title of 201 characters
-    Then the form says the title is too long
-    And the register holds no documents
+  Scenario Outline: A title may be 200 characters long and no longer
+    When she submits a document with a title of <length> characters
+    Then the document is <outcome>
+
+    Examples:
+      | length | outcome                         |
+      | 199    | accepted                        |
+      | 200    | accepted                        |
+      | 201    | refused because it is too long  |
 
   Scenario: A title is shown as text, never as markup
-    When she submits a document with the title "<script>alert(1)</script>" and no tags
-    And she opens the list of documents
+    Given she has submitted a document with the title "<script>alert(1)</script>" and no tags
+    When she opens the list of documents
     Then the page shows the title "<script>alert(1)</script>" as plain text

@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from .choices import Status
 from .models import Document
-from .rules import is_overdue, may_review
+from .rules import is_overdue, waiting_for_review_by
 
 
 class DashboardSummary(BaseModel):
@@ -28,5 +28,5 @@ def dashboard_summary(user: AbstractBaseUser, now: datetime) -> DashboardSummary
         overdue=sum(is_overdue(document, now) for document in waiting),
         approved=Document.objects.filter(status=Status.APPROVED).count(),
         rejected=Document.objects.filter(status=Status.REJECTED).count(),
-        for_you=sum(may_review(document, user) for document in waiting),
+        for_you=waiting_for_review_by(user).count(),
     )

@@ -3,6 +3,7 @@
 from datetime import datetime
 
 from django.contrib.auth.models import AbstractBaseUser
+from django.db.models import QuerySet
 
 from .choices import Status
 from .models import Document
@@ -17,6 +18,14 @@ def may_review(document: Document, user: AbstractBaseUser) -> bool:
     Whoever submitted a document does not review it. Nobody signs off on their own work.
     """
     return document.submitted_by_id != user.pk
+
+
+def waiting_for_review_by(user: AbstractBaseUser) -> QuerySet[Document]:
+    """Return the documents this user could review now: the same rule as `may_review`, as a query.
+
+    The two stand next to each other on purpose. Change one and the other is in view.
+    """
+    return Document.objects.filter(status=Status.WAITING).exclude(submitted_by=user)
 
 
 def is_overdue(document: Document, now: datetime) -> bool:

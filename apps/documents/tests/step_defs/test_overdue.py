@@ -13,25 +13,33 @@ from apps.documents.rules import is_overdue
 scenarios("../features/overdue.feature")
 
 
-def document_from(context: dict, days: int, status: str) -> None:
-    author = get_user_model().objects.create_user(username="author")
+def document_from(context: dict, age: timedelta, status: str) -> None:
+    users = get_user_model().objects
+    author = users.create_user(username="author")
+    reviewed = status != Status.WAITING
     context["now"] = timezone.now()
     context["document"] = Document.objects.create(
         title="Access policy",
         submitted_by=author,
-        submitted_at=context["now"] - timedelta(days=days),
+        submitted_at=context["now"] - age,
         status=status,
+        reviewed_by=users.create_user(username="reviewer") if reviewed else None,
+        reviewed_at=context["now"] if reviewed else None,
     )
 
 
-@given(parsers.parse("a document that was submitted {days:d} days ago and waits for a review"))
-def waiting(context: dict, days: int) -> None:
-    document_from(context, days, Status.WAITING)
+@given(
+    parsers.re(
+        r"a document that was submitted (?P<days>\d+) days(?: and (?P<hours>\d+) hours)? ago and waits for a review"
+    )
+)
+def waiting(context: dict, days: str, hours: str | None) -> None:
+    document_from(context, timedelta(days=int(days), hours=int(hours or 0)), Status.WAITING)
 
 
 @given(parsers.parse("a document that was submitted {days:d} days ago and was {decision}"))
 def reviewed(context: dict, days: int, decision: str) -> None:
-    document_from(context, days, Status(decision))
+    document_from(context, timedelta(days=days), Status(decision))
 
 
 @when("somebody looks at the register today")
