@@ -18,6 +18,7 @@ dev = [
     "pytest>=9",
     "pytest-bdd>=9",
     "pytest-django>=4.14",
+    "pytest-playwright>=0.7",
     "ruff>=0.17",
 ]
 
