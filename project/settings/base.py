@@ -1,4 +1,4 @@
-"""Settings shared by every environment."""
+"""Settings shared by every environment. Not meant to run by themselves: pick local, test, staging or production."""
 
 from pathlib import Path
 
@@ -7,7 +7,7 @@ from .env import env
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = env.secret_key
-DEBUG = env.debug
+DEBUG = False
 ALLOWED_HOSTS = env.allowed_hosts
 
 INSTALLED_APPS = [
@@ -57,7 +57,7 @@ DATABASES = {
 }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Every page except the sign-in page needs a signed-in user.
+# The pages of the register need a signed-in user. The start page, the sign-in page and the health address do not.
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "documents:dashboard"
 LOGOUT_REDIRECT_URL = "login"

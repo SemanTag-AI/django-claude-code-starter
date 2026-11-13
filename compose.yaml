@@ -1,0 +1,57 @@
+# The register with its database, to run the whole thing on your own machine:
+#
+#   cp .env.example .env    and change the two values in it
+#   mise run docker:up      then open http://localhost:8080
+#
+# This is not a deployment. There is no HTTPS, no backup and no monitoring here.
+
+x-register: &register
+  build: .
+  image: django-agent-starter:local
+  environment:
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?set DJANGO_SECRET_KEY in the file .env}
+    DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1}
+    DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:8080}
+    # Plain HTTP on your own machine. On a server leave this out: HTTPS is the default.
+    DJANGO_HTTPS: ${DJANGO_HTTPS:-false}
+    DJANGO_DATABASE_NAME: register
+    DJANGO_DATABASE_USER: register
+    DJANGO_DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the file .env}
+    DJANGO_DATABASE_HOST: database
+
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: register
+      POSTGRES_USER: register
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the file .env}
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --username register --dbname register"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    # Not published to your machine: only the application talks to it.
+
+  # Runs once, before the application starts, and then stops.
+  migrate:
+    <<: *register
+    command: ["python", "manage.py", "migrate", "--noinput"]
+    healthcheck:
+      disable: true
+    depends_on:
+      database:
+        condition: service_healthy
+
+  web:
+    <<: *register
+    ports:
+      - "8080:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  database:

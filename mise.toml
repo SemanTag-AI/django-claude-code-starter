@@ -13,6 +13,15 @@ run = ["uv sync", "uv run pre-commit install"]
 description = "Run the framework's own checks and fail on a model change without a migration"
 run = ["uv run python manage.py check", "uv run python manage.py makemigrations --check --dry-run"]
 
+[tasks."check:deploy"]
+description = "Run the framework's deployment check on the staging and the production settings"
+# Stand-in values: the check reads settings, it connects to nothing.
+env = { DJANGO_ENV_FILE = "/dev/null", DJANGO_SECRET_KEY = "a-stand-in-key-for-the-deployment-check-and-nothing-else", DJANGO_ALLOWED_HOSTS = "register.example.org", DJANGO_DATABASE_NAME = "register", DJANGO_DATABASE_USER = "register", DJANGO_DATABASE_PASSWORD = "stand-in", DJANGO_DATABASE_HOST = "database.example.org" }
+run = [
+    "uv run --group production python manage.py check --deploy --fail-level WARNING --settings=project.settings.production",
+    "uv run --group production python manage.py check --deploy --fail-level WARNING --settings=project.settings.staging",
+]
+
 [tasks.css]
 description = "Compile the Tailwind stylesheet (downloads the Tailwind CLI on first use, no Node needed)"
 run = "uv run python manage.py tailwind build"
@@ -42,3 +51,15 @@ run = ["uv run ruff format --check .", "uv run ruff check ."]
 description = "Scan every commit for credentials"
 # A scan of nothing would pass. Refuse to call an empty history clean.
 run = ["test \"$(git rev-list --count HEAD)\" -gt 0", "gitleaks git --no-banner --redact"]
+
+[tasks."docker:build"]
+description = "Make the container image of the register"
+run = "docker build --tag django-agent-starter:local ."
+
+[tasks."docker:up"]
+description = "Run the register and its database in containers, on http://localhost:8080"
+run = "docker compose up --build --detach --wait"
+
+[tasks."docker:down"]
+description = "Stop the containers and keep the data"
+run = "docker compose down"

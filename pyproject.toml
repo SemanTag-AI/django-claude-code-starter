@@ -9,11 +9,19 @@ requires-python = ">=3.14"
 dependencies = [
     "django>=6.1,<6.2",
     "django-tailwind-cli>=4.8",
+    "pydantic>=2.12",
     "pydantic-settings>=2.16",
 ]
 
 [dependency-groups]
+# What a server needs on top of the application. `uv sync` leaves it out.
+production = [
+    "gunicorn>=23",
+    "psycopg[binary]>=3.2",
+    "whitenoise>=6.9",
+]
 dev = [
+    "playwright>=1.55",
     "pre-commit>=4.7",
     "pytest>=9",
     "pytest-bdd>=9",
@@ -27,7 +35,7 @@ package = false
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "project.settings.test"
-testpaths = ["apps"]
+testpaths = ["apps", "project"]
 python_files = ["test_*.py"]
 addopts = "-ra -m 'not e2e'"
 markers = ["e2e: scenarios that drive a real browser; run them with the browser test command"]

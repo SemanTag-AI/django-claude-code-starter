@@ -1,0 +1,21 @@
+# Nothing personal, nothing built on this machine and no history goes into the image.
+.git
+.venv
+.env
+.env.*
+!.env.example
+.tailwind
+.idea
+.vscode
+.pytest_cache
+.ruff_cache
+__pycache__
+*.pyc
+db.sqlite3
+.test.sqlite3
+staticfiles
+assets/css/tailwind.css
+.claude
+.github
+# Tests are not part of what runs on a server.
+**/tests
