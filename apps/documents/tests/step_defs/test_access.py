@@ -33,3 +33,10 @@ def no_match(context: dict) -> None:
 @then("the page is not found")
 def not_found(context: dict) -> None:
     assert context["response"].status_code == 404
+
+
+@then("the page shows no leftover template code")
+def no_template_code(context: dict) -> None:
+    body = context["response"].content.decode()
+    for leftover in ("{#", "#}", "{%", "%}", "{{", "}}"):
+        assert leftover not in body, leftover

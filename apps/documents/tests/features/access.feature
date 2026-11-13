@@ -23,6 +23,7 @@ Feature: Only signed-in users see the register
     Given bob is signed in
     When he opens <page>
     Then the page opens
+    And the page shows no leftover template code
 
     Examples:
       | page                         |
@@ -39,6 +40,7 @@ Feature: Only signed-in users see the register
   Scenario: The sign-in page opens for everybody
     When a visitor opens the sign-in page
     Then the page opens
+    And the page shows no leftover template code
 
   Scenario: Signing in with the right password leads to the dashboard
     When bob signs in with the right password

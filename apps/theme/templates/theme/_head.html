@@ -1,8 +1,10 @@
 {% load static tailwind_cli %}<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}Document register{% endblock %}</title>
-{# Runs before the stylesheet, so that a dark page never flashes light. The choice a
-   visitor made wins. Without a choice the page follows the system. #}
+{% comment %}
+  Runs before the stylesheet, so that a dark page never flashes light. The choice a
+  visitor made wins. Without a choice the page follows the system.
+{% endcomment %}
 <script>
   (function () {
     var stored = null;
