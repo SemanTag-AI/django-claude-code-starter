@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Documents{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap items-end justify-between gap-4">
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight">Documents</h1>
+    <p class="mt-1 text-muted">Every document in the register, newest first.</p>
+  </div>
+  <a href="{% url 'documents:new' %}" class="btn">New document</a>
+</div>
+
+{% if documents %}
+<div class="card mt-8 overflow-x-auto p-0">
+  <table class="w-full text-left text-sm">
+    <thead class="border-b border-line text-muted">
+      <tr>
+        <th scope="col" class="px-6 py-3 font-medium">Title</th>
+        <th scope="col" class="px-6 py-3 font-medium">Status</th>
+        <th scope="col" class="px-6 py-3 font-medium">Submitted by</th>
+        <th scope="col" class="px-6 py-3 font-medium">Submitted</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-line">
+      {% for document in documents %}
+      <tr>
+        <td class="px-6 py-3"><a href="{% url 'documents:detail' document.pk %}" data-test="document-title" class="font-medium hover:text-accent">{{ document.title }}</a></td>
+        <td class="whitespace-nowrap px-6 py-3">{% include "documents/_status.html" %}</td>
+        <td class="px-6 py-3">{{ document.submitted_by.get_username }}</td>
+        <td class="whitespace-nowrap px-6 py-3 text-muted">{{ document.submitted_at|date:"j M Y" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p data-test="no-documents" class="card mt-8 text-muted">There are no documents yet.</p>
+{% endif %}
+{% endblock %}

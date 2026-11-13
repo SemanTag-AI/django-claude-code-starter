@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ document.title }}{% endblock %}
+
+{% block content %}
+<p class="text-sm"><a href="{% url 'documents:list' %}" class="text-muted hover:text-content">Documents</a></p>
+<div class="mt-2 flex flex-wrap items-center gap-3">
+  <h1 data-test="document-title" class="text-3xl font-bold tracking-tight">{{ document.title }}</h1>
+  <span>{% include "documents/_status.html" %}</span>
+</div>
+
+<div class="mt-8 grid gap-6 lg:grid-cols-3">
+  <article class="card lg:col-span-2">
+    <h2 class="text-sm font-medium text-muted">Text</h2>
+    <div class="mt-2 whitespace-pre-line">{{ document.body|default:"No text." }}</div>
+  </article>
+
+  <aside class="space-y-6">
+    <dl class="card space-y-3 text-sm">
+      <div><dt class="font-medium text-muted">Submitted by</dt><dd>{{ document.submitted_by.get_username }}, {{ document.submitted_at|date:"j M Y" }}</dd></div>
+      <div><dt class="font-medium text-muted">Tags</dt><dd>{{ document.tags|join:", "|default:"None" }}</dd></div>
+      {% if document.reviewed_by %}
+      <div><dt class="font-medium text-muted">Reviewed by</dt><dd>{{ document.reviewed_by.get_username }}, {{ document.reviewed_at|date:"j M Y" }}</dd></div>
+      {% endif %}
+    </dl>
+
+    {% if offer_review %}
+    <form method="post" action="{% url 'documents:review' document.pk %}" data-test="review-form" class="card">
+      {% csrf_token %}
+      <h2 class="font-semibold">Your review</h2>
+      <p class="mt-1 text-sm text-muted">A decision cannot be changed afterwards.</p>
+      <div class="mt-4 flex gap-3">
+        <button type="submit" name="decision" value="approved" class="btn">Approve</button>
+        <button type="submit" name="decision" value="rejected" class="btn-quiet">Reject</button>
+      </div>
+    </form>
+    {% elif document.status == 'waiting' %}
+    <p data-test="own-document" class="card text-sm text-muted">You submitted this document, so a colleague has to review it.</p>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

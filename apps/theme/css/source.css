@@ -2,7 +2,87 @@
    Tailwind 4 is configured here, in CSS: there is no tailwind.config.js. */
 @import "tailwindcss";
 
-@theme {
-  --color-brand: #0284c7;
-  --color-ink: #0a1a2f;
+/* Dark mode is a class on <html>, so that a visitor can choose it. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Every colour is a variable with a light and a dark value. Templates use the
+   names below (bg-surface, text-muted) and almost never need a `dark:` class. */
+:root {
+  color-scheme: light;
+  --page: #f8fafc;
+  --surface: #ffffff;
+  --sidebar: #ffffff;
+  --line: #e2e8f0;
+  --content: #0f172a;
+  --muted: #475569;
+  --accent: #0369a1;
+  --accent-hover: #075985;
+  --on-accent: #ffffff;
+  --ok: #166534;
+  --ok-soft: #dcfce7;
+  --warn: #92400e;
+  --warn-soft: #fef3c7;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+}
+
+.dark {
+  color-scheme: dark;
+  --page: #020617;
+  --surface: #0f172a;
+  --sidebar: #0b1220;
+  --line: #1e293b;
+  --content: #f1f5f9;
+  --muted: #94a3b8;
+  --accent: #38bdf8;
+  --accent-hover: #7dd3fc;
+  --on-accent: #082f49;
+  --ok: #86efac;
+  --ok-soft: #14532d;
+  --warn: #fcd34d;
+  --warn-soft: #78350f;
+  --danger: #fca5a5;
+  --danger-soft: #7f1d1d;
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-sidebar: var(--sidebar);
+  --color-line: var(--line);
+  --color-content: var(--content);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-line bg-surface p-6 shadow-sm;
+  }
+  .field {
+    @apply mt-2 block w-full rounded-lg border border-line bg-surface px-3 py-2 text-content focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg bg-accent px-4 py-2 font-semibold text-on-accent hover:bg-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60;
+  }
+  .btn-quiet {
+    @apply inline-flex items-center justify-center rounded-lg border border-line bg-surface px-4 py-2 font-semibold text-content hover:bg-page focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+  .nav-link {
+    @apply flex items-center rounded-lg px-3 py-2 text-sm font-medium text-muted hover:bg-page hover:text-content;
+  }
+  .nav-link[aria-current="page"] {
+    @apply bg-page text-content;
+  }
 }

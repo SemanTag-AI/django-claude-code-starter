@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap items-end justify-between gap-4">
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
+    <p class="mt-1 text-muted">Where the documents stand today.</p>
+  </div>
+  <a href="{% url 'documents:new' %}" class="btn">New document</a>
+</div>
+
+<dl class="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+  <div class="card">
+    <dt class="text-sm font-medium text-muted">Waiting for a review</dt>
+    <dd data-test="tile-waiting" class="mt-2 text-4xl font-bold">{{ summary.waiting }}</dd>
+  </div>
+  <div class="card">
+    <dt class="text-sm font-medium text-muted">Overdue</dt>
+    <dd data-test="tile-overdue" class="mt-2 text-4xl font-bold {% if summary.overdue %}text-warn{% endif %}">{{ summary.overdue }}</dd>
+  </div>
+  <div class="card">
+    <dt class="text-sm font-medium text-muted">Approved</dt>
+    <dd data-test="tile-approved" class="mt-2 text-4xl font-bold">{{ summary.approved }}</dd>
+  </div>
+  <div class="card">
+    <dt class="text-sm font-medium text-muted">Rejected</dt>
+    <dd data-test="tile-rejected" class="mt-2 text-4xl font-bold">{{ summary.rejected }}</dd>
+  </div>
+</dl>
+
+{% if not recent %}
+<p data-test="no-documents" class="card mt-8 text-muted">There are no documents yet. Submit the first one, or fill the register with demo data.</p>
+{% else %}
+<div class="mt-8 grid gap-6 lg:grid-cols-2">
+  <section class="card" aria-labelledby="to-review-heading">
+    <h2 id="to-review-heading" class="text-lg font-semibold">Waiting for your review</h2>
+    <p class="mt-1 text-sm text-muted">Submitted by somebody else. Longest wait first.</p>
+    <ul class="mt-4 divide-y divide-line">
+      {% for document in to_review %}
+      <li class="flex items-center justify-between gap-3 py-3">
+        <a href="{% url 'documents:detail' document.pk %}" data-test="to-review-title" class="font-medium hover:text-accent">{{ document.title }}</a>
+        <span class="shrink-0">{% include "documents/_status.html" %}</span>
+      </li>
+      {% empty %}
+      <li class="py-3 text-sm text-muted">Nothing waits for you.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="recent-heading">
+    <h2 id="recent-heading" class="text-lg font-semibold">Recent documents</h2>
+    <p class="mt-1 text-sm text-muted">The last five that were submitted.</p>
+    <ul class="mt-4 divide-y divide-line">
+      {% for document in recent %}
+      <li class="flex items-center justify-between gap-3 py-3">
+        <a href="{% url 'documents:detail' document.pk %}" class="font-medium hover:text-accent">{{ document.title }}</a>
+        <span class="shrink-0">{% include "documents/_status.html" %}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+{% endif %}
+{% endblock %}
