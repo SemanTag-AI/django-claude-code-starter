@@ -4,7 +4,8 @@ Feature: Text stays readable in the light and in the dark theme
   So that I can read the register in either theme
 
   The measure is the contrast ratio of the Web Content Accessibility Guidelines.
-  Ordinary text needs at least 4.5 to 1.
+  Ordinary text needs at least 4.5 to 1. The edge of something you have to
+  find, such as a field to type in, needs at least 3 to 1.
 
   Scenario Outline: <text> on <background> in the <theme> theme
     Given the colours of the <theme> theme
@@ -27,6 +28,9 @@ Feature: Text stays readable in the light and in the dark theme
       | light | warn      | warn-soft   |
       | light | danger    | danger-soft |
       | light | danger    | surface     |
+      | light | warn      | surface     |
+      | light | accent-hover | page     |
+      | light | accent-hover | surface  |
       | dark  | content   | page        |
       | dark  | content   | surface     |
       | dark  | content   | sidebar     |
@@ -41,3 +45,18 @@ Feature: Text stays readable in the light and in the dark theme
       | dark  | warn      | warn-soft   |
       | dark  | danger    | danger-soft |
       | dark  | danger    | surface     |
+      | dark  | warn      | surface     |
+      | dark  | accent-hover | page     |
+      | dark  | accent-hover | surface  |
+
+  Scenario Outline: The edge of a field on <background> in the <theme> theme
+    Given the colours of the <theme> theme
+    When the contrast of "field-line" on "<background>" is worked out
+    Then it is at least 3 to 1
+
+    Examples:
+      | theme | background |
+      | light | surface    |
+      | light | page       |
+      | dark  | surface    |
+      | dark  | page       |

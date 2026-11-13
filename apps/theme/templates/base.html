@@ -5,24 +5,24 @@
   <title>{% block title %}Document register{% endblock %}</title>
 </head>
 <body class="min-h-screen bg-page text-content antialiased">
-  <a href="#content" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 btn">Skip to the content</a>
+  <a href="#content" class="btn sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50">Skip to the content</a>
 
-  <header class="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-sidebar px-4 py-3 lg:hidden">
+  <header class="needs-script sticky top-0 z-30 flex items-center justify-between border-b border-line bg-sidebar px-4 py-2 lg:hidden">
     <button type="button" data-menu-toggle aria-controls="sidebar" aria-expanded="false" class="btn-quiet min-h-11 px-3 text-sm">Menu</button>
     <span class="flex items-center gap-2 font-semibold">{% include "theme/_logo.html" %}Document register</span>
     <span class="w-14"></span>
   </header>
 
   {% with here=request.resolver_match.url_name %}
-  <aside id="sidebar" data-sidebar class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-line bg-sidebar transition-transform data-[open]:translate-x-0 motion-reduce:transition-none lg:translate-x-0">
+  <aside id="sidebar" data-sidebar class="sidebar">
     <div class="flex items-center justify-between px-5 py-5">
       <a href="{% url 'documents:dashboard' %}" class="flex items-center gap-2 text-lg font-bold tracking-tight">{% include "theme/_logo.html" %}<span>Document register</span></a>
-      <button type="button" data-menu-toggle aria-controls="sidebar" class="min-h-11 px-2 text-sm text-muted lg:hidden">Close</button>
+      <button type="button" data-menu-toggle aria-controls="sidebar" class="needs-script min-h-11 px-2 text-sm text-muted lg:hidden">Close</button>
     </div>
     <nav aria-label="Main" class="flex-1 space-y-1 px-3">
-      <a href="{% url 'documents:dashboard' %}" class="nav-link" {% if here == 'dashboard' %}aria-current="page"{% endif %}>Dashboard</a>
-      <a href="{% url 'documents:list' %}" class="nav-link" {% if here == 'list' or here == 'detail' %}aria-current="page"{% endif %}>Documents</a>
-      <a href="{% url 'documents:new' %}" class="nav-link" {% if here == 'new' %}aria-current="page"{% endif %}>New document</a>
+      <a href="{% url 'documents:dashboard' %}" class="nav-link min-h-11" {% if here == 'dashboard' %}aria-current="page"{% endif %}>Dashboard</a>
+      <a href="{% url 'documents:list' %}" class="nav-link min-h-11" {% if here == 'list' %}aria-current="page"{% elif here == 'detail' %}aria-current="true"{% endif %}>Documents</a>
+      <a href="{% url 'documents:new' %}" class="nav-link min-h-11" {% if here == 'new' %}aria-current="page"{% endif %}>New document</a>
     </nav>
     <div class="space-y-1 border-t border-line px-3 py-4">
       {% include "theme/_theme_toggle.html" %}
@@ -30,19 +30,19 @@
         <span data-test="signed-in-as" class="font-medium">{{ request.user.get_username }}</span>
         <form method="post" action="{% url 'logout' %}">
           {% csrf_token %}
-          <button type="submit" class="text-muted underline-offset-2 hover:text-content hover:underline">Sign out</button>
+          <button type="submit" class="min-h-11 text-muted underline-offset-2 hover:text-content hover:underline">Sign out</button>
         </form>
       </div>
     </div>
   </aside>
   {% endwith %}
 
-  <main id="content" class="px-4 py-8 lg:ml-64 lg:px-10 lg:py-10">
-    <div class="mx-auto max-w-5xl">
+  <div class="lg:ml-64">
+    <main id="content" class="mx-auto max-w-5xl px-4 py-8 lg:px-10 lg:py-10">
       {% include "theme/_messages.html" %}
       {% block content %}{% endblock %}
-      {% include "theme/_footer.html" %}
-    </div>
-  </main>
+    </main>
+    <div class="mx-auto max-w-5xl px-4 pb-10 lg:px-10">{% include "theme/_footer.html" %}</div>
+  </div>
 </body>
 </html>

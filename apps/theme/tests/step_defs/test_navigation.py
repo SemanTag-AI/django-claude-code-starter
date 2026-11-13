@@ -6,7 +6,7 @@ from pytest_bdd import given, parsers, scenarios, then, when
 
 from .conftest import PASSWORD
 
-pytestmark = pytest.mark.e2e
+pytestmark = [pytest.mark.e2e, pytest.mark.usefixtures("running_site")]
 
 scenarios("../features/navigation.feature")
 
@@ -35,6 +35,7 @@ def follow(page: Page, link: str) -> None:
     page.get_by_role("navigation", name="Main").get_by_role("link", name=link, exact=True).click()
 
 
+@given(parsers.parse('he has pressed "{button}"'))
 @when(parsers.parse('he presses "{button}"'))
 def press(page: Page, button: str) -> None:
     page.get_by_role("button", name=button, exact=True).first.click()
@@ -146,3 +147,36 @@ def link_out_of_view(page: Page, link: str) -> None:
 @then(parsers.parse('the {role} "{name}" has the focus'))
 def has_focus(page: Page, role: str, name: str) -> None:
     expect(page.get_by_role(role, name=name, exact=True)).to_be_focused()
+
+
+@when("he presses the Tab key five times", target_fixture="focus_trail")
+def tab_five_times(page: Page) -> list[bool]:
+    trail = []
+    for _ in range(5):
+        page.keyboard.press("Tab")
+        trail.append(page.evaluate("Boolean(document.activeElement.closest('[data-sidebar]'))"))
+    return trail
+
+
+@then("the focus never entered the menu")
+def never_in_menu(focus_trail: list[bool]) -> None:
+    assert focus_trail == [False] * 5
+
+
+@given("bob is signed in on a phone in a browser that runs no scripts")
+def signed_in_without_scripts(site, plain_page: Page) -> None:
+    plain_page.goto(site.address("login"))
+    plain_page.get_by_label("Name").fill("bob")
+    plain_page.get_by_label("Password").fill(PASSWORD)
+    plain_page.get_by_role("button", name="Sign in").click()
+    expect(plain_page.get_by_role("heading", level=1, name="Dashboard")).to_be_visible()
+
+
+@when('he presses "Sign out" there')
+def sign_out_without_scripts(plain_page: Page) -> None:
+    plain_page.get_by_role("button", name="Sign out").click()
+
+
+@then("the sign-in page is open there")
+def sign_in_page_without_scripts(plain_page: Page) -> None:
+    expect(plain_page.get_by_role("button", name="Sign in")).to_be_visible()

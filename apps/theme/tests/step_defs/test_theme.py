@@ -4,7 +4,7 @@ import pytest
 from playwright.sync_api import Page, expect
 from pytest_bdd import given, parsers, scenarios, then, when
 
-pytestmark = pytest.mark.e2e
+pytestmark = [pytest.mark.e2e, pytest.mark.usefixtures("running_site")]
 
 scenarios("../features/theme.feature")
 
@@ -39,8 +39,7 @@ def shown_in(page: Page, scheme: str) -> None:
     expect(page.locator("body")).to_have_css("background-color", BACKGROUND[scheme])
 
 
-@then(parsers.parse('the theme switch offers "{label}"'))
-def switch_offers(page: Page, label: str) -> None:
-    switch = page.locator("[data-theme-toggle]").first
-    expect(switch).to_have_text(label)
-    expect(switch).to_have_attribute("aria-pressed", "true")
+@then("the theme switch says that the dark mode is on")
+def switch_says_dark(page: Page) -> None:
+    """One name that does not change, and a pressed state that does: that is what a screen reader announces."""
+    expect(page.get_by_role("button", name="Dark mode", pressed=True)).to_be_visible()

@@ -20,7 +20,7 @@ Feature: A light and a dark mode
     And the visitor has opened the sign-in page
     When the visitor uses the theme switch
     Then the page is shown in the dark theme
-    And the theme switch offers "Light mode"
+    And the theme switch says that the dark mode is on
 
   Scenario: The choice survives a reload
     Given a visitor whose system prefers the light theme

@@ -6,11 +6,13 @@
 
   function showTheme() {
     var dark = root.classList.contains("dark");
+    // The name of the switch stays "Dark mode". Only its pressed state changes, so that a
+    // screen reader never has to announce "Light mode, pressed".
     document.querySelectorAll("[data-theme-toggle]").forEach(function (button) {
       button.setAttribute("aria-pressed", String(dark));
-      var label = button.querySelector("[data-theme-label]");
-      if (label) {
-        label.textContent = dark ? "Light mode" : "Dark mode";
+      var state = button.querySelector("[data-theme-state]");
+      if (state) {
+        state.textContent = dark ? "On" : "Off";
       }
     });
   }
@@ -29,11 +31,21 @@
 
   // A menu button names the element it opens in aria-controls. This script only sets
   // data-open on that element. What "open" looks like is up to the stylesheet.
+  function opener(menu) {
+    return document.querySelector('[data-menu-toggle][aria-expanded][aria-controls="' + menu.id + '"]');
+  }
+
+  // Closing always hands the focus back to the button that opens the menu. Otherwise the
+  // focus would stay on something that has just gone out of sight.
   function setOpen(menu, open) {
     menu.toggleAttribute("data-open", open);
-    document.querySelectorAll('[data-menu-toggle][aria-expanded][aria-controls="' + menu.id + '"]').forEach(function (button) {
+    var button = opener(menu);
+    if (button) {
       button.setAttribute("aria-expanded", String(open));
-    });
+      if (!open) {
+        button.focus();
+      }
+    }
   }
 
   document.querySelectorAll("[data-menu-toggle]").forEach(function (button) {
@@ -49,10 +61,6 @@
     }
     document.querySelectorAll("[data-open]").forEach(function (menu) {
       setOpen(menu, false);
-      var opener = document.querySelector('[data-menu-toggle][aria-expanded][aria-controls="' + menu.id + '"]');
-      if (opener) {
-        opener.focus();
-      }
     });
   });
 

@@ -78,3 +78,20 @@ Feature: Finding your way through the register
     Given a visitor who has opened the start page
     When the visitor signs in as bob with the keyboard only
     Then the page with the heading "Dashboard" is open
+
+  Scenario: On a phone the Tab key passes over the closed menu
+    Given bob is signed in in the browser on a phone
+    When he presses the Tab key five times
+    Then the focus never entered the menu
+
+  Scenario: Closing the menu returns to the button that opened it
+    Given bob is signed in in the browser on a phone
+    And he has pressed "Menu"
+    When he presses "Close"
+    Then the menu is out of view
+    And the button "Menu" has the focus
+
+  Scenario: Without scripts the menu is simply there
+    Given bob is signed in on a phone in a browser that runs no scripts
+    When he presses "Sign out" there
+    Then the sign-in page is open there

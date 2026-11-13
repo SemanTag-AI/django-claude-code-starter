@@ -17,9 +17,9 @@ PASSWORD = "a-password-for-the-test-run"
 os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 
 
-@pytest.fixture(autouse=True)
-def _running_site(transactional_db, live_server):
-    """Start the site for every scenario here, and empty the database after each one."""
+@pytest.fixture
+def running_site(transactional_db, live_server):
+    """Start the site and empty the database afterwards. Only the browser scenarios ask for this."""
 
 
 @pytest.fixture
@@ -67,3 +67,11 @@ def sign_in(site, name: str) -> None:
 @given("a visitor who has opened the start page")
 def open_start_page(site) -> None:
     site.open("documents:home")
+
+
+@pytest.fixture
+def plain_page(browser, live_server):
+    """A phone-sized page in a browser that runs no script at all."""
+    context = browser.new_context(java_script_enabled=False, viewport={"width": 390, "height": 844})
+    yield context.new_page()
+    context.close()

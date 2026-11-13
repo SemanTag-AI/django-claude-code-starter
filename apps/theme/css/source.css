@@ -13,6 +13,7 @@
   --surface: #ffffff;
   --sidebar: #ffffff;
   --line: #e2e8f0;
+  --field-line: #64748b;
   --content: #0f172a;
   --muted: #475569;
   --accent: #0369a1;
@@ -32,6 +33,7 @@
   --surface: #0f172a;
   --sidebar: #0b1220;
   --line: #1e293b;
+  --field-line: #64748b;
   --content: #f1f5f9;
   --muted: #94a3b8;
   --accent: #38bdf8;
@@ -50,6 +52,7 @@
   --color-surface: var(--surface);
   --color-sidebar: var(--sidebar);
   --color-line: var(--line);
+  --color-field-line: var(--field-line);
   --color-content: var(--content);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
@@ -76,13 +79,13 @@
     @apply rounded-xl border border-line bg-surface p-6 shadow-sm;
   }
   .field {
-    @apply mt-2 block w-full rounded-lg border border-line bg-surface px-3 py-2 text-content focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40;
+    @apply mt-2 block w-full rounded-lg border border-field-line bg-surface px-3 py-2 text-content;
   }
   .btn {
-    @apply inline-flex items-center justify-center rounded-lg bg-accent px-4 py-2 font-semibold text-on-accent hover:bg-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60;
+    @apply inline-flex items-center justify-center rounded-lg bg-accent px-4 py-2 font-semibold text-on-accent hover:bg-accent-hover;
   }
   .btn-quiet {
-    @apply inline-flex items-center justify-center rounded-lg border border-line bg-surface px-4 py-2 font-semibold text-content hover:bg-page focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60;
+    @apply inline-flex items-center justify-center rounded-lg border border-field-line bg-surface px-4 py-2 font-semibold text-content hover:bg-page;
   }
   .badge {
     @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
@@ -95,9 +98,14 @@
   }
 }
 
-/* The menu button only shows where the script runs and the screen is narrow.
-   Without the script the links are simply there. These rules stand outside the
-   layers on purpose, so that they win from a utility class such as `flex`. */
+/* What follows depends on whether the script runs. The script in <head> sets
+   data-js on <html>. Without it every link is simply there and nothing that needs
+   the script is shown. These rules stand outside the layers on purpose, so that
+   they win from a utility class such as `flex`. */
+html:not([data-js]) .needs-script {
+  display: none;
+}
+
 .menu-button {
   display: none;
 }
@@ -109,5 +117,55 @@
 
   [data-js] [data-collapsible]:not([data-open]) {
     display: none;
+  }
+}
+
+/* The menu of the pages behind the sign-in. On a wide screen it stands at the side.
+   On a narrow one it slides in on request, and while it is closed it is also hidden
+   from the keyboard and from a screen reader, not only moved out of sight. Without
+   the script it is an ordinary block above the content. */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--line);
+  background-color: var(--sidebar);
+}
+
+@media (width >= 64rem) {
+  .sidebar {
+    position: fixed;
+    inset-block: 0;
+    left: 0;
+    width: 16rem;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+  }
+}
+
+@media (width < 64rem) {
+  [data-js] .sidebar {
+    position: fixed;
+    inset-block: 0;
+    left: 0;
+    z-index: 40;
+    width: 16rem;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition:
+      transform 150ms ease-out,
+      visibility 150ms;
+  }
+
+  [data-js] .sidebar[data-open] {
+    transform: none;
+    visibility: visible;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-js] .sidebar {
+    transition: none;
   }
 }
