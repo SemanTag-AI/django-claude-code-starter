@@ -1,6 +1,6 @@
 Feature: Only signed-in users see the register
   As somebody who is responsible for the register
-  I want every page to ask for a sign-in
+  I want every page of the register to ask for a sign-in
   So that documents are not readable by anybody who knows the address
 
   Background:

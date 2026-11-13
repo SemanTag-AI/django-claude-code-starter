@@ -18,8 +18,10 @@ Made by [Semantag AI](https://semantag.ai).
 | One skill | `.claude/skills/bdd-scenarios/` | How to write scenarios that pin a rule down |
 | Project instructions | `CLAUDE.md` | The commands, the layout and the rules. The agents name no tool themselves: they read this file |
 | An application | `project/`, `apps/` | A document register with a start page, a sign-in, a dashboard and a light and a dark mode |
-| Scenarios | `apps/*/tests/features/` | 69 that need no browser, 20 that drive a real one |
-| Gates | `.pre-commit-config.yaml`, `.github/workflows/ci.yml` | Lint, checks, both sets of scenarios and a secret scan, outside the agents |
+| Scenarios | `apps/*/tests/features/`, `project/tests/features/` | 99 that need no browser, 23 that drive a real one |
+| Settings | `project/settings/` | `local`, `test`, `staging` and `production`. The last two refuse to start until every secret and address is given |
+| A container | `Dockerfile`, `compose.yaml` | The register with PostgreSQL, to run the whole thing on your own machine |
+| Gates | `.pre-commit-config.yaml`, `.github/workflows/ci.yml` | Lint, checks, both sets of scenarios, a secret scan and a start of the container, outside the agents |
 
 ## The example: a document register
 
@@ -28,9 +30,10 @@ Two rules carry the example:
 
 - **Whoever submitted a document does not review it.** The page hides the buttons from the
   submitter, and the server refuses the request if she sends it anyway. The second half is the
-  control. See [`review.feature`](apps/documents/tests/features/review.feature).
-- **A document that has waited more than 30 full days is overdue.** On day 30 it is not, on day 31
-  it is. See [`overdue.feature`](apps/documents/tests/features/overdue.feature).
+  control. The database refuses it as well, for the day the code has a bug.
+  See [`review.feature`](apps/documents/tests/features/review.feature).
+- **A document that has waited more than 30 full days is overdue.** On day 30 it is not, not even
+  at 30 days and 23 hours. On day 31 it is. See [`overdue.feature`](apps/documents/tests/features/overdue.feature).
 
 The rules are plain functions in [`apps/documents/rules.py`](apps/documents/rules.py).
 The first two commits of this repository show the order they were made in: the specification
@@ -47,7 +50,7 @@ git clone https://github.com/GITHUB_ORG_PLACEHOLDER/django-agent-starter.git
 cd django-agent-starter
 mise trust
 mise run install   # dependencies and git hooks
-mise run test      # 69 scenarios, all green
+mise run test      # 99 scenarios, all green
 mise run demo      # two users and twelve documents to look around in
 mise run dev       # http://127.0.0.1:8000, with the Tailwind watcher
 ```
@@ -61,6 +64,40 @@ put this application on a server anybody else can reach without replacing the us
 
 `mise run dev` downloads the Tailwind CLI once, about 110 MB, into `.tailwind/`.
 `mise run test:e2e` runs the browser scenarios and downloads Chromium the first time.
+
+## Run it in containers
+
+With Docker, and without installing anything else:
+
+```bash
+cp .env.example .env     # then fill in the two values; the file says how
+mise run docker:up       # or: docker compose up --build --detach --wait
+```
+
+Open http://localhost:8080. This runs the `production` settings with PostgreSQL and gunicorn,
+as a user without root rights, with the migrations applied before the application starts.
+The demo users do not exist here, because debug is off. Make a user of your own:
+
+```bash
+docker compose exec web python manage.py createsuperuser
+```
+
+`docker compose down` stops it and keeps the data. Add `--volumes` to throw the data away.
+
+## Settings
+
+| File | For | Debug | Database |
+|---|---|---|---|
+| `local` | Your machine | On, unless `DJANGO_DEBUG=false` | SQLite |
+| `test` | The test run | Off | SQLite, a file of its own |
+| `staging` | A rehearsal server | Off | PostgreSQL |
+| `production` | A server | Off | PostgreSQL |
+
+`staging` is `production` with one difference: browsers are told to insist on HTTPS for an hour
+instead of a year. Both stop with the name of the variable when a value is missing, and both
+refuse the key that ships with the code. Everything that can be set is listed in
+[`project/settings/env.py`](project/settings/env.py). `mise run check:deploy` runs the
+deployment check of the framework on both.
 
 ## The pipeline
 
@@ -127,13 +164,17 @@ run the tests and where feature files and step definitions live.
 - **Who writes does not approve.** The reviewer runs with read-only tools and sees the specification and the change, not the reasoning that produced it. The example application applies the same rule to its documents.
 - **Gates beat instructions.** "Always run the tests" in an instruction file is a request. A pipeline that refuses to merge on a red test is a fact. The file `.claude/settings.json` denies a few commands, which helps, but a setting can be worked around. The real gate is a protected `main` branch on your server.
 - **The colours are variables.** Every colour has a light and a dark value in one stylesheet, and the page follows the system until a visitor chooses. No JavaScript library, no web font, no Node.
-- **Usable without a mouse, and without the script.** A skip link, a visible focus, a menu that closes on Escape, and a scenario that works out the contrast of every text colour in both themes. With JavaScript off the links are simply there.
+- **Usable without a mouse, and without the script.** A skip link, a visible focus, a menu that closes on Escape and stays out of the way of the Tab key while it is closed, and scenarios that work out the contrast of the text colours and field edges in both themes. With JavaScript off the menu is simply there. Nobody has listened to it with a screen reader yet.
 
 ## What this is not
 
-It is an example, kept small on purpose. There is no registration, no password reset, no roles,
-no deployment, no production settings file and no support promise. Nothing limits how often
-somebody may try a password.
+It is an example, kept small on purpose. There is no registration, no password reset, no roles
+and no support promise. Nothing limits how often somebody may try a password.
+
+There is an image and a compose file to run the whole thing, and there are settings for a
+server. That is not a deployment. The settings were checked with the deployment check and run
+in the container, over plain HTTP on one machine. HTTPS, a proxy, backups and monitoring are
+yours to add, and the part of the settings that only works behind HTTPS has not been seen working.
 
 It shows how a team gets working, tested changes out of agents. The review rule in the example
 is an illustration of separating duties. It is not evidence that an organisation meets a
@@ -150,7 +191,7 @@ Semantag AI gives a training on exactly that, for development teams that work wi
 |---|---|
 | Last checked | 13 November 2026 |
 | Claude Code | 2.1.323 |
-| Model | Claude Opus 5.5 |
+| Model | Claude Fable 5.2 |
 | Python, Django, Tailwind | 3.14, 6.1, 4.3 |
 
 Agents behave differently from one model version to the next. If a run goes wrong for you,

@@ -14,17 +14,25 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      # Actions are pinned to a commit. A tag can be moved to other code, a commit cannot.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # The secret scan reads every commit, not only the last one.
           fetch-depth: 0
-      - uses: jdx/mise-action@v5
-      - name: Install
-        run: uv sync
+      - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
+      - name: Install exactly what the lock file says
+        run: uv sync --locked
+      - name: The hooks that do not run elsewhere in this workflow
+        run: uv run pre-commit run --all-files
+        env:
+          # The scenarios and the secret scan have steps of their own below.
+          SKIP: tests-pass,gitleaks
       - name: Lint
         run: mise run lint
       - name: Framework checks and migrations
         run: mise run check
+      - name: Deployment check on the staging and production settings
+        run: mise run check:deploy
       - name: Scenarios without a browser
         run: mise run test
       - name: Build the stylesheet without Node
@@ -38,3 +46,10 @@ jobs:
         run: mise run test:e2e
       - name: Secret scan over every commit
         run: mise run secrets
+      - name: The container image builds, starts and answers
+        run: |
+          printf 'DJANGO_SECRET_KEY=%s\nPOSTGRES_PASSWORD=%s\n' "$(openssl rand -hex 32)" "$(openssl rand -hex 16)" > .env
+          mise run docker:up
+          curl --fail --silent --show-error http://localhost:8080/healthz/
+          curl --fail --silent --show-error --output /dev/null http://localhost:8080/
+          docker compose down --volumes

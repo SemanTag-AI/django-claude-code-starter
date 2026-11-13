@@ -44,7 +44,7 @@ Scenario Outline: The discount depends on the basket total
     | 100.01 | 90.01  |
 ```
 
-The third row also settles a question nobody asked: what happens to half a cent.
+The third row also settles a question nobody asked: what happens to a fraction of a cent.
 
 ## Checklist before a scenario goes to a person
 

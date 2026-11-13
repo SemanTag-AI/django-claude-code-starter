@@ -14,11 +14,14 @@ what is written here. Change the stack, and this is the file to change.
 | Check formatting and lint rules | `mise run lint` |
 | Fix formatting | `uv run ruff format .` |
 | Run the framework checks and look for a missing migration | `mise run check` |
+| Run the deployment check on the staging and production settings | `mise run check:deploy` |
 | Write a migration after a model change | `uv run python manage.py makemigrations` |
 | Compile the stylesheet | `mise run css` |
 | Run the development server | `mise run dev` |
 | Fill an empty register with demo data | `mise run demo` |
 | Scan every commit for credentials | `mise run secrets` |
+| Make the container image | `mise run docker:build` |
+| Run the register and its database in containers | `mise run docker:up` |
 
 There are two test commands, and each scenario is covered by exactly one of them:
 
@@ -47,7 +50,8 @@ read the result:
 - Numbers for a page: a function that returns a Pydantic model, such as `apps/documents/summary.py`. The view does no arithmetic.
 - Templates: `apps/<app>/templates/<app>/`. A page behind the sign-in extends `base.html` from `apps/theme`; a page for everybody extends `theme/public.html`.
 - Styling: Tailwind classes in the template. Colours are variables in `apps/theme/css/source.css`, each with a light and a dark value. Use the names (`bg-surface`, `text-muted`), not a fixed colour, or the dark mode breaks.
-- A test finds an element by its `data-test` attribute, never by a class.
+- A test finds an element by its role, its label or its `data-test` attribute, never by a class.
+- Settings: `project/settings/`. `local` for your machine, `test` for the test run, `production` for a server and `staging` for a rehearsal of one. `staging` imports `production` and changes as little as it can.
 - A new colour needs a light and a dark value and a row in `apps/theme/tests/features/contrast.feature`.
 
 ## Order of work
@@ -64,7 +68,9 @@ read the result:
 - Never write "done" without the command you ran and its output.
 - A person merges. No agent merges or pushes to `main`.
 - A rule that protects something is enforced on the server. Hiding a button is a courtesy, not a control.
-- Every page except the sign-in page asks for a signed-in user.
+- Every page of the register asks for a signed-in user. Only the start page, the sign-in page and the health address are open.
+- A rule that must never be broken is also a constraint in the database, so that it holds when the code has a bug.
+- A value a server cannot run without has no default. The settings stop and name it (`required` in `project/settings/env.py`).
 
 ## Code style
 
