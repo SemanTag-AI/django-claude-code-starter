@@ -1,0 +1,62 @@
+# Project instructions
+
+This file is what every agent reads before it works in this repository. The
+agents in `.claude/agents/` name no tool and no path themselves: they follow
+what is written here. Change the stack, and this is the file to change.
+
+## Commands
+
+| Job | Command |
+|---|---|
+| Install dependencies and git hooks | `mise run install` |
+| Run every scenario that needs no browser | `mise run test` |
+| Run the scenarios that drive a real browser | `mise run test:e2e` |
+| Check formatting and lint rules | `mise run lint` |
+| Fix formatting | `uv run ruff format .` |
+| Run the framework checks and look for a missing migration | `mise run check` |
+| Write a migration after a model change | `uv run python manage.py makemigrations` |
+| Compile the stylesheet | `mise run css` |
+| Run the development server | `mise run dev` |
+| Fill an empty register with demo data | `mise run demo` |
+| Scan every commit for credentials | `mise run secrets` |
+
+The test command is `mise run test`. Use it and nothing else, so that everybody runs the same thing.
+
+Run `mise run test:e2e` as well whenever a template, the stylesheet or the script changed.
+The scenarios without a browser read the HTML. They cannot see a page that looks broken.
+
+## Where things go
+
+- A feature file: `apps/<app>/tests/features/<name>.feature`
+- Its step definitions: `apps/<app>/tests/step_defs/test_<name>.py`. Steps that several features share live in `conftest.py` next to them.
+- Scenarios that need a browser carry the marker `e2e` and live in `apps/theme/tests/`.
+- Business rules: a plain module in the app, such as `apps/documents/rules.py`. Views call rules; rules know nothing about views.
+- Numbers for a page: a function that returns a Pydantic model, such as `apps/documents/summary.py`. The view does no arithmetic.
+- Templates: `apps/<app>/templates/<app>/`. They extend `base.html` from `apps/theme`.
+- Styling: Tailwind classes in the template. Colours are variables in `apps/theme/css/source.css`, each with a light and a dark value. Use the names (`bg-surface`, `text-muted`), not a fixed colour, or the dark mode breaks.
+- A test finds an element by its `data-test` attribute, never by a class.
+
+## Order of work
+
+1. The specification comes first: a feature file a person has approved.
+2. Then step definitions that fail because the behaviour is missing, not because of a typo or an import error.
+3. Then the code that makes them pass.
+4. Then a review by an agent that did not write the code, and a merge by a person.
+
+## Rules
+
+- Never change a feature file or a step definition to make a failing test pass. If a test looks wrong, stop and say why.
+- Never skip the git hooks (`--no-verify`, `-n`) and never force-push.
+- Never write "done" without the command you ran and its output.
+- A person merges. No agent merges or pushes to `main`.
+- A rule that protects something is enforced on the server. Hiding a button is a courtesy, not a control.
+- Every page except the sign-in page asks for a signed-in user.
+
+## Code style
+
+- Python: Google style docstrings, type hints on every function, 120 characters per line. `ruff` decides the rest.
+- Views are class-based.
+- A fixed set of choices is an `enum.StrEnum`. A structured value that crosses a boundary is a Pydantic `BaseModel`.
+- Configuration is read in `project/settings/env.py` and nowhere else.
+- A function that depends on the time takes the time as an argument, so that a test can choose it.
+- No JavaScript library and no web font. The script in `apps/theme/static/theme/app.js` is all there is.
