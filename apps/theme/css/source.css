@@ -1,0 +1,8 @@
+/* The Tailwind entry point. `mise run css` compiles this to assets/css/tailwind.css.
+   Tailwind 4 is configured here, in CSS: there is no tailwind.config.js. */
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #0284c7;
+  --color-ink: #0a1a2f;
+}

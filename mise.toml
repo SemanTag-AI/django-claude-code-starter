@@ -1,0 +1,25 @@
+# One command per job. The agents and the CI call these and nothing else,
+# so a change of tool happens here and nowhere else.
+
+[tools]
+uv = "0.11.19"
+
+[tasks.install]
+description = "Install the dependencies and the git hooks"
+run = ["uv sync", "uv run pre-commit install"]
+
+[tasks.css]
+description = "Compile the Tailwind stylesheet (downloads the Tailwind CLI on first use, no Node needed)"
+run = "uv run python manage.py tailwind build"
+
+[tasks.dev]
+description = "Run the development server with the Tailwind watcher"
+run = "uv run python manage.py tailwind runserver"
+
+[tasks.test]
+description = "Run every scenario and test"
+run = "uv run pytest"
+
+[tasks.lint]
+description = "Check formatting and lint rules without changing files"
+run = ["uv run ruff format --check .", "uv run ruff check ."]

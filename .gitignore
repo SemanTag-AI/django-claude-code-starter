@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+db.sqlite3
+.env
+staticfiles/
+# Built by `mise run css`. The source is apps/theme/css/source.css.
+assets/css/tailwind.css
+# The Tailwind CLI binary that `mise run css` downloads.
+.tailwind/
+# Editor settings are personal.
+.idea/
+.vscode/

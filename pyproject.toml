@@ -1,0 +1,49 @@
+[project]
+name = "django-agent-starter"
+version = "0.1.0"
+description = "A Django and Tailwind starter with a behaviour-first pipeline of coding agents."
+authors = [{ name = "Semantag AI B.V.", email = "info@semantag.ai" }]
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.14"
+dependencies = [
+    "django>=6.1,<6.2",
+    "django-tailwind-cli>=4.8",
+    "pydantic-settings>=2.16",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.7",
+    "pytest>=9",
+    "pytest-bdd>=9",
+    "pytest-django>=4.14",
+    "ruff>=0.17",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "project.settings.test"
+testpaths = ["apps"]
+python_files = ["test_*.py"]
+addopts = "-ra -m 'not e2e'"
+markers = ["e2e: scenarios that drive a real browser; run them with the browser test command"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py314"
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "B", "S", "UP", "ANN", "D"]
+ignore = ["D203", "D213", "D105", "D107"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+# Tests assert, and their step functions read as the sentence they implement.
+"**/tests/**" = ["S101", "S105", "S106", "D103", "ANN"]
+"**/__init__.py" = ["D104"]
