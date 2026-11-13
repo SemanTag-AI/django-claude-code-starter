@@ -1,0 +1,39 @@
+# Run on every commit. Install once with `mise run install`.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.5
+    hooks:
+      - id: ruff-format
+      - id: ruff-check
+
+  # Credentials do not belong in a repository, least of all a public one.
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  - repo: local
+    hooks:
+      # A path under somebody's home directory means a file was written for one machine.
+      - id: no-home-paths
+        name: No absolute home directory paths
+        language: pygrep
+        entry: '(/home/|/Users/)[A-Za-z0-9_.-]+/'
+        exclude: '^\.pre-commit-config\.yaml$'
+      # The scenarios are the specification. A commit that skips the hooks hides that.
+      - id: tests-pass
+        name: Every scenario passes
+        language: system
+        entry: mise run test
+        pass_filenames: false
+        types_or: [python, gherkin, html, css, javascript]

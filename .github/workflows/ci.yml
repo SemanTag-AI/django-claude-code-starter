@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Read-only, and no secret is used anywhere in this workflow. A pull request
+# from a fork runs with exactly what is in the repository.
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The secret scan reads every commit, not only the last one.
+          fetch-depth: 0
+      - uses: jdx/mise-action@v5
+      - name: Install
+        run: uv sync
+      - name: Lint
+        run: mise run lint
+      - name: Framework checks and migrations
+        run: mise run check
+      - name: Scenarios without a browser
+        run: mise run test
+      - name: Build the stylesheet without Node
+        run: |
+          mise run css
+          test -s assets/css/tailwind.css
+          grep -q "bg-surface" assets/css/tailwind.css
+      - name: Browser dependencies
+        run: uv run playwright install-deps chromium
+      - name: Scenarios in a browser
+        run: mise run test:e2e
+      - name: Secret scan over every commit
+        run: mise run secrets

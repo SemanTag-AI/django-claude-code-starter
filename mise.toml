@@ -3,10 +3,15 @@
 
 [tools]
 uv = "0.11.19"
+gitleaks = "8.30.1"
 
 [tasks.install]
 description = "Install the dependencies and the git hooks"
 run = ["uv sync", "uv run pre-commit install"]
+
+[tasks.check]
+description = "Run the framework's own checks and fail on a model change without a migration"
+run = ["uv run python manage.py check", "uv run python manage.py makemigrations --check --dry-run"]
 
 [tasks.css]
 description = "Compile the Tailwind stylesheet (downloads the Tailwind CLI on first use, no Node needed)"
@@ -14,12 +19,26 @@ run = "uv run python manage.py tailwind build"
 
 [tasks.dev]
 description = "Run the development server with the Tailwind watcher"
-run = "uv run python manage.py tailwind runserver"
+run = ["uv run python manage.py migrate", "uv run python manage.py tailwind runserver"]
+
+[tasks.demo]
+description = "Fill an empty register with two demo users and a dozen documents"
+run = ["uv run python manage.py migrate", "uv run python manage.py seed_demo"]
 
 [tasks.test]
-description = "Run every scenario and test"
+description = "Run every scenario that needs no browser"
 run = "uv run pytest"
+
+[tasks."test:e2e"]
+description = "Run the scenarios that drive a real browser (downloads Chromium on first use)"
+depends = ["css"]
+run = ["uv run playwright install chromium", "uv run pytest -m e2e"]
 
 [tasks.lint]
 description = "Check formatting and lint rules without changing files"
 run = ["uv run ruff format --check .", "uv run ruff check ."]
+
+[tasks.secrets]
+description = "Scan every commit for credentials"
+# A scan of nothing would pass. Refuse to call an empty history clean.
+run = ["test \"$(git rev-list --count HEAD)\" -gt 0", "gitleaks git --no-banner --redact"]
