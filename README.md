@@ -139,10 +139,12 @@ Read the scenarios it proposes. Who reviews the second time, and may it be the s
 What happens on a third try? Does the 30 days start again? If the request did not say, the
 scenarios should ask. Approve them, and let the rest run.
 
-Do not expect `DONE`. In our own three runs of this request the tests went green and the
-reviewer still stopped each run with `NOT READY`: after a second submission the dashboard list
-"longest wait first" was sorted on the first date, and no scenario said which date counts. A
-question nobody asked, found before a person had to. That is what the pipeline is for.
+Do not count on `DONE`. Of our own four runs of this request, three stopped with `NOT READY`
+although every test was green: after a second submission the dashboard list "longest wait
+first" was sorted on the first date, and no scenario said which date counts. A question nobody
+asked, found before a person had to. The fourth ended with `DONE` and nine remarks for whoever
+reads the change, among them that a document cannot be edited before it is submitted again.
+Both endings are the pipeline doing its job. The same request does not give the same run twice.
 
 Then ask for something that already exists and see that it does not pretend to have worked:
 
