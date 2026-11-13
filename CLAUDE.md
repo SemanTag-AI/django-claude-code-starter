@@ -20,10 +20,23 @@ what is written here. Change the stack, and this is the file to change.
 | Fill an empty register with demo data | `mise run demo` |
 | Scan every commit for credentials | `mise run secrets` |
 
-The test command is `mise run test`. Use it and nothing else, so that everybody runs the same thing.
+There are two test commands, and each scenario is covered by exactly one of them:
 
-Run `mise run test:e2e` as well whenever a template, the stylesheet or the script changed.
-The scenarios without a browser read the HTML. They cannot see a page that looks broken.
+- `mise run test` runs every scenario that is not marked `e2e`.
+- `mise run test:e2e` runs the scenarios marked `e2e`, in a real browser. `mise run test` leaves them out without saying so.
+
+A change to a template, the stylesheet or the script needs both. So does any feature with a
+scenario marked `e2e`. The scenarios without a browser read the HTML. They cannot see a page
+that looks broken. Use these two commands and nothing else, so that everybody runs the same thing.
+
+## Protected files
+
+Once step definitions exist for an approved feature file, these do not change until a person has
+read the result:
+
+- everything in a `tests` folder: feature files, step definitions and the `conftest.py` files next to them
+- `pyproject.toml` and `mise.toml`, because they decide which tests run and how
+- any `conftest.py` anywhere in the repository
 
 ## Where things go
 
@@ -46,7 +59,7 @@ The scenarios without a browser read the HTML. They cannot see a page that looks
 
 ## Rules
 
-- Never change a feature file or a step definition to make a failing test pass. If a test looks wrong, stop and say why.
+- Never change a protected file to make a failing test pass. If a test looks wrong, stop and say why.
 - Never skip the git hooks (`--no-verify`, `-n`) and never force-push.
 - Never write "done" without the command you ran and its output.
 - A person merges. No agent merges or pushes to `main`.

@@ -9,6 +9,8 @@ $ARGUMENTS
 
 Run each agent in the foreground and wait for its reply before you start the next. Pass every agent the request and the path of the feature file. Do the work of no step yourself.
 
+The project instructions name the protected files: the tests and what configures them. From the moment the test-writer is done, nobody changes them.
+
 ## Step 1. Specification
 
 Use the spec-writer agent.
@@ -28,16 +30,18 @@ Use the test-writer agent.
 
 ## Step 3. Implementation
 
-Before you start, note the state of the feature file and the step definitions, for example with `git stash create` or by committing them. Then use the implementer agent.
+Before you start, record a fingerprint of every protected file, for example with `git hash-object <file>` for each of them. Include the files git does not track yet: the feature file and the step definitions are new, and a snapshot that only knows tracked files would miss them. Keep the list. Do not commit.
 
-When it replies, compare the feature file and the step definitions with the state you noted. If either changed, restore them, and end with the outcome TESTS NOT GREEN: a test that was changed to pass proves nothing.
+Then use the implementer agent.
+
+When it replies, take the fingerprints again and compare. A protected file that changed, disappeared or was added counts as a changed test. If that happened, say which file, restore it where git can, and end with the outcome TESTS NOT GREEN: a test that was changed to pass proves nothing.
 
 - GREEN and nothing changed in the tests: go to step 4.
 - NOT GREEN: stop. End with the outcome TESTS NOT GREEN and the last test output. Do not loosen a test and do not start a second attempt by yourself.
 
 ## Step 4. Review
 
-Use the reviewer agent. Tell it which feature file was approved and which files changed.
+Use the reviewer agent. Tell it which feature file was approved and which files changed, and give it the change itself: the output of `git diff` for the files git tracks and the full text of every new file. The reviewer cannot run a command, so what you do not hand over it cannot see.
 
 - READY FOR A PERSON TO READ: end with the outcome DONE.
 - NOT READY: end with the outcome NOT READY and the findings. Fix nothing by yourself. The person decides what happens next.
