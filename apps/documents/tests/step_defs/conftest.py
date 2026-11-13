@@ -119,13 +119,6 @@ def sent_to_sign_in(context: dict) -> None:
     assert target.startswith(reverse("login"))
 
 
-@then("he is sent to the dashboard")
-def sent_to_dashboard(context: dict) -> None:
-    response = context["response"]
-    target = response.redirect_chain[-1][0] if getattr(response, "redirect_chain", None) else response.url
-    assert target == reverse("documents:dashboard")
-
-
 @then(parsers.parse('the document "{title}" still waits for a review'))
 def still_waiting(title: str) -> None:
     document = document_titled(title)

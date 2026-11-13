@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  {% include "theme/_head.html" %}
+  <title>{% block title %}Document register{% endblock %}</title>
+</head>
+<body class="min-h-screen bg-page text-content antialiased">
+  <a href="#content" class="btn sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50">Skip to the content</a>
+
+  <header data-test="menu-bar" class="sticky top-0 z-30 border-b border-line bg-sidebar">
+    <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 px-4 py-2">
+      <a href="{% url 'documents:home' %}" class="flex min-h-11 items-center gap-2 text-lg font-bold tracking-tight">{% include "theme/_logo.html" %}<span>Document register</span></a>
+      <button type="button" data-menu-toggle aria-controls="public-menu" aria-expanded="false" class="menu-button btn-quiet min-h-11 px-3 text-sm">Menu</button>
+      <nav id="public-menu" data-collapsible aria-label="Main" class="flex w-full flex-col gap-1 pb-2 sm:w-auto sm:flex-row sm:items-center sm:gap-2 sm:pb-0">
+        <a href="{% url 'documents:home' %}#how-it-works" class="nav-link min-h-11">How it works</a>
+        <div>{% include "theme/_theme_toggle.html" %}</div>
+        <a href="#sign-in" class="btn min-h-11">Sign in</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="content" class="mx-auto max-w-5xl px-4 py-10 lg:py-16">
+    {% block content %}{% endblock %}
+    {% include "theme/_footer.html" %}
+  </main>
+</body>
+</html>

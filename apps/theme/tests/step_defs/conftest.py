@@ -62,3 +62,8 @@ def open_sign_in(site) -> None:
 @when(parsers.parse("the visitor signs in as {name:w}"))
 def sign_in(site, name: str) -> None:
     site.sign_in(name)
+
+
+@given("a visitor who has opened the start page")
+def open_start_page(site) -> None:
+    site.open("documents:home")

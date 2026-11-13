@@ -1,0 +1,14 @@
+<form method="post" action="{% url 'login' %}" data-test="sign-in-form" class="card"{% if form.non_field_errors %} aria-describedby="sign-in-error"{% endif %}>
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ next|default:'' }}">
+  {% if form.non_field_errors %}
+  <div id="sign-in-error" role="alert" class="mb-4 rounded-lg border border-danger bg-danger-soft px-3 py-2 text-sm text-danger">
+    {% for error in form.non_field_errors %}<p data-test="form-error">{{ error }}</p>{% endfor %}
+  </div>
+  {% endif %}
+  <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium">Name</label>
+  <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" value="{{ form.username.value|default_if_none:'' }}" autocomplete="username" autocapitalize="none" required{% if autofocus %} autofocus{% endif %} class="field">
+  <label for="{{ form.password.id_for_label }}" class="mt-4 block text-sm font-medium">Password</label>
+  <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}" autocomplete="current-password" required class="field">
+  <button type="submit" class="btn mt-6 min-h-11 w-full">Sign in</button>
+</form>

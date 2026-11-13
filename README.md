@@ -17,8 +17,8 @@ Made by [Semantag AI](https://semantag.ai).
 | One command | `.claude/commands/feature.md` | `/feature <request>` runs the four agents in order and stops for your approval after the specification |
 | One skill | `.claude/skills/bdd-scenarios/` | How to write scenarios that pin a rule down |
 | Project instructions | `CLAUDE.md` | The commands, the layout and the rules. The agents name no tool themselves: they read this file |
-| An application | `project/`, `apps/` | A document register with a sign-in, a dashboard and a light and a dark mode |
-| Scenarios | `apps/*/tests/features/` | 39 that read the pages, 14 that drive a real browser |
+| An application | `project/`, `apps/` | A document register with a start page, a sign-in, a dashboard and a light and a dark mode |
+| Scenarios | `apps/*/tests/features/` | 69 that need no browser, 20 that drive a real one |
 | Gates | `.pre-commit-config.yaml`, `.github/workflows/ci.yml` | Lint, checks, both sets of scenarios and a secret scan, outside the agents |
 
 ## The example: a document register
@@ -47,13 +47,14 @@ git clone https://github.com/GITHUB_ORG_PLACEHOLDER/django-agent-starter.git
 cd django-agent-starter
 mise trust
 mise run install   # dependencies and git hooks
-mise run test      # 39 scenarios, all green
+mise run test      # 69 scenarios, all green
 mise run demo      # two users and twelve documents to look around in
 mise run dev       # http://127.0.0.1:8000, with the Tailwind watcher
 ```
 
-Sign in as `alice` or `bob` with the password `review-me-please`. Sign in as one, submit a
-document, and try to approve it. Then sign in as the other.
+The start page says what the register is for and holds the sign-in. Use `alice` or `bob` with
+the password `review-me-please`. Sign in as one, submit a document, and try to approve it.
+Then sign in as the other.
 
 That password is public, which is why `mise run demo` refuses to run with debug off. Do not
 put this application on a server anybody else can reach without replacing the users.
@@ -101,6 +102,11 @@ Read the scenarios it proposes. Who reviews the second time, and may it be the s
 What happens on a third try? Does the 30 days start again? If the request did not say, the
 scenarios should ask. Approve them, and let the rest run.
 
+Do not expect `DONE`. In our own three runs of this request the tests went green and the
+reviewer still stopped each run with `NOT READY`: after a second submission the dashboard list
+"longest wait first" was sorted on the first date, and no scenario said which date counts. A
+question nobody asked, found before a person had to. That is what the pipeline is for.
+
 Then ask for something that already exists and see that it does not pretend to have worked:
 
 ```text
@@ -121,6 +127,7 @@ run the tests and where feature files and step definitions live.
 - **Who writes does not approve.** The reviewer runs with read-only tools and sees the specification and the change, not the reasoning that produced it. The example application applies the same rule to its documents.
 - **Gates beat instructions.** "Always run the tests" in an instruction file is a request. A pipeline that refuses to merge on a red test is a fact. The file `.claude/settings.json` denies a few commands, which helps, but a setting can be worked around. The real gate is a protected `main` branch on your server.
 - **The colours are variables.** Every colour has a light and a dark value in one stylesheet, and the page follows the system until a visitor chooses. No JavaScript library, no web font, no Node.
+- **Usable without a mouse, and without the script.** A skip link, a visible focus, a menu that closes on Escape, and a scenario that works out the contrast of every text colour in both themes. With JavaScript off the links are simply there.
 
 ## What this is not
 

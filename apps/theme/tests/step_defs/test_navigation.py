@@ -4,6 +4,8 @@ import pytest
 from playwright.sync_api import Page, expect
 from pytest_bdd import given, parsers, scenarios, then, when
 
+from .conftest import PASSWORD
+
 pytestmark = pytest.mark.e2e
 
 scenarios("../features/navigation.feature")
@@ -82,3 +84,65 @@ def menu_hidden(page: Page) -> None:
 @then("the menu is in view")
 def menu_shown(page: Page) -> None:
     expect(page.locator("[data-sidebar]")).to_be_in_viewport()
+
+
+@given("a visitor on a phone who has opened the start page")
+def start_page_on_a_phone(site, page: Page) -> None:
+    page.set_viewport_size(PHONE)
+    site.open("documents:home")
+
+
+@given(parsers.parse('the visitor has pressed "{button}"'))
+@when(parsers.parse('the visitor presses "{button}"'))
+def visitor_presses(page: Page, button: str) -> None:
+    page.get_by_role("button", name=button, exact=True).first.click()
+
+
+@when("the visitor scrolls to the bottom of the page")
+def scroll_down(page: Page) -> None:
+    assert page.evaluate("document.documentElement.scrollHeight > window.innerHeight"), "the page does not scroll"
+    page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
+
+
+@when("the visitor looks at the start page")
+def look_at_start_page(page: Page) -> None:
+    expect(page.get_by_role("heading", level=1)).to_be_visible()
+
+
+@when(parsers.parse("the visitor presses the {key} key"))
+def press_key(page: Page, key: str) -> None:
+    page.keyboard.press(key)
+
+
+@when(parsers.parse("the visitor signs in as {name:w} with the keyboard only"))
+def keyboard_sign_in(page: Page, name: str) -> None:
+    for _ in range(20):
+        page.keyboard.press("Tab")
+        if page.evaluate("document.activeElement.name") == "username":
+            break
+    else:
+        raise AssertionError("the Tab key never reached the name field")
+    page.keyboard.type(name)
+    page.keyboard.press("Tab")
+    page.keyboard.type(PASSWORD)
+    page.keyboard.press("Enter")
+
+
+@then("the menu bar is in view")
+def menu_bar_in_view(page: Page) -> None:
+    expect(page.locator('[data-test="menu-bar"]')).to_be_in_viewport()
+
+
+@then(parsers.parse('the link "{link}" is in view'))
+def link_in_view(page: Page, link: str) -> None:
+    expect(page.get_by_role("link", name=link, exact=True)).to_be_in_viewport()
+
+
+@then(parsers.parse('the link "{link}" is out of view'))
+def link_out_of_view(page: Page, link: str) -> None:
+    expect(page.get_by_role("link", name=link, exact=True)).to_have_count(0)
+
+
+@then(parsers.parse('the {role} "{name}" has the focus'))
+def has_focus(page: Page, role: str, name: str) -> None:
+    expect(page.get_by_role(role, name=name, exact=True)).to_be_focused()

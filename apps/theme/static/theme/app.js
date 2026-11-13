@@ -1,4 +1,4 @@
-// The theme switch and the menu on small screens. No library, on purpose.
+// The theme switch and the menus on small screens. No library, on purpose.
 (function () {
   "use strict";
 
@@ -27,13 +27,32 @@
     });
   });
 
+  // A menu button names the element it opens in aria-controls. This script only sets
+  // data-open on that element. What "open" looks like is up to the stylesheet.
+  function setOpen(menu, open) {
+    menu.toggleAttribute("data-open", open);
+    document.querySelectorAll('[data-menu-toggle][aria-expanded][aria-controls="' + menu.id + '"]').forEach(function (button) {
+      button.setAttribute("aria-expanded", String(open));
+    });
+  }
+
   document.querySelectorAll("[data-menu-toggle]").forEach(function (button) {
     button.addEventListener("click", function () {
-      var sidebar = document.querySelector("[data-sidebar]");
-      var open = !sidebar.classList.toggle("-translate-x-full");
-      document.querySelectorAll("[data-menu-toggle][aria-expanded]").forEach(function (toggle) {
-        toggle.setAttribute("aria-expanded", String(open));
-      });
+      var menu = document.getElementById(button.getAttribute("aria-controls"));
+      setOpen(menu, !menu.hasAttribute("data-open"));
+    });
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== "Escape") {
+      return;
+    }
+    document.querySelectorAll("[data-open]").forEach(function (menu) {
+      setOpen(menu, false);
+      var opener = document.querySelector('[data-menu-toggle][aria-expanded][aria-controls="' + menu.id + '"]');
+      if (opener) {
+        opener.focus();
+      }
     });
   });
 

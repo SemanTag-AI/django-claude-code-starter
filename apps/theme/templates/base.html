@@ -2,21 +2,22 @@
 <html lang="en">
 <head>
   {% include "theme/_head.html" %}
+  <title>{% block title %}Document register{% endblock %}</title>
 </head>
 <body class="min-h-screen bg-page text-content antialiased">
   <a href="#content" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 btn">Skip to the content</a>
 
   <header class="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-sidebar px-4 py-3 lg:hidden">
-    <button type="button" data-menu-toggle aria-controls="sidebar" aria-expanded="false" class="btn-quiet px-3 py-1.5 text-sm">Menu</button>
-    <span class="font-semibold">Document register</span>
+    <button type="button" data-menu-toggle aria-controls="sidebar" aria-expanded="false" class="btn-quiet min-h-11 px-3 text-sm">Menu</button>
+    <span class="flex items-center gap-2 font-semibold">{% include "theme/_logo.html" %}Document register</span>
     <span class="w-14"></span>
   </header>
 
   {% with here=request.resolver_match.url_name %}
-  <aside id="sidebar" data-sidebar class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-line bg-sidebar transition-transform lg:translate-x-0">
+  <aside id="sidebar" data-sidebar class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-line bg-sidebar transition-transform data-[open]:translate-x-0 motion-reduce:transition-none lg:translate-x-0">
     <div class="flex items-center justify-between px-5 py-5">
-      <a href="{% url 'documents:dashboard' %}" class="text-lg font-bold tracking-tight">Document register</a>
-      <button type="button" data-menu-toggle aria-controls="sidebar" class="text-sm text-muted lg:hidden">Close</button>
+      <a href="{% url 'documents:dashboard' %}" class="flex items-center gap-2 text-lg font-bold tracking-tight">{% include "theme/_logo.html" %}<span>Document register</span></a>
+      <button type="button" data-menu-toggle aria-controls="sidebar" class="min-h-11 px-2 text-sm text-muted lg:hidden">Close</button>
     </div>
     <nav aria-label="Main" class="flex-1 space-y-1 px-3">
       <a href="{% url 'documents:dashboard' %}" class="nav-link" {% if here == 'dashboard' %}aria-current="page"{% endif %}>Dashboard</a>

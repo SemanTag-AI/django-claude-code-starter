@@ -63,6 +63,14 @@
   --color-danger-soft: var(--danger-soft);
 }
 
+@layer base {
+  /* Whoever uses the keyboard always sees where they are. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
 @layer components {
   .card {
     @apply rounded-xl border border-line bg-surface p-6 shadow-sm;
@@ -84,5 +92,22 @@
   }
   .nav-link[aria-current="page"] {
     @apply bg-page text-content;
+  }
+}
+
+/* The menu button only shows where the script runs and the screen is narrow.
+   Without the script the links are simply there. These rules stand outside the
+   layers on purpose, so that they win from a utility class such as `flex`. */
+.menu-button {
+  display: none;
+}
+
+@media (width < 40rem) {
+  [data-js] .menu-button {
+    display: inline-flex;
+  }
+
+  [data-js] [data-collapsible]:not([data-open]) {
+    display: none;
   }
 }

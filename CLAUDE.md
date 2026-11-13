@@ -32,9 +32,10 @@ The scenarios without a browser read the HTML. They cannot see a page that looks
 - Scenarios that need a browser carry the marker `e2e` and live in `apps/theme/tests/`.
 - Business rules: a plain module in the app, such as `apps/documents/rules.py`. Views call rules; rules know nothing about views.
 - Numbers for a page: a function that returns a Pydantic model, such as `apps/documents/summary.py`. The view does no arithmetic.
-- Templates: `apps/<app>/templates/<app>/`. They extend `base.html` from `apps/theme`.
+- Templates: `apps/<app>/templates/<app>/`. A page behind the sign-in extends `base.html` from `apps/theme`; a page for everybody extends `theme/public.html`.
 - Styling: Tailwind classes in the template. Colours are variables in `apps/theme/css/source.css`, each with a light and a dark value. Use the names (`bg-surface`, `text-muted`), not a fixed colour, or the dark mode breaks.
 - A test finds an element by its `data-test` attribute, never by a class.
+- A new colour needs a light and a dark value and a row in `apps/theme/tests/features/contrast.feature`.
 
 ## Order of work
 
@@ -60,3 +61,4 @@ The scenarios without a browser read the HTML. They cannot see a page that looks
 - Configuration is read in `project/settings/env.py` and nowhere else.
 - A function that depends on the time takes the time as an argument, so that a test can choose it.
 - No JavaScript library and no web font. The script in `apps/theme/static/theme/app.js` is all there is.
+- Every page works with the keyboard alone and with JavaScript off. A menu button names what it opens in `aria-controls`.

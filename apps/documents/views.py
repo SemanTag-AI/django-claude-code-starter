@@ -5,13 +5,14 @@ from datetime import datetime
 from typing import Any
 
 from django.contrib import messages
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone
 from django.views import View
-from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView
+from django.views.generic import CreateView, DetailView, ListView, TemplateView
 
 from .choices import Status
 from .forms import DocumentForm
@@ -32,10 +33,22 @@ def with_overdue_mark(documents: Iterable[Document], now: datetime) -> list[Docu
     return marked
 
 
-class HomeView(LoginRequiredMixin, RedirectView):
-    """The start page is the dashboard, for whoever is signed in."""
+class HomeView(TemplateView):
+    """Say what the register is for and offer the sign-in. Whoever is signed in goes on to the dashboard."""
 
-    pattern_name = "documents:dashboard"
+    template_name = "documents/home.html"
+
+    def get(self, request: HttpRequest, *args: object, **kwargs: object) -> HttpResponse:
+        """Send a signed-in user on. Show everybody else the page."""
+        if request.user.is_authenticated:
+            return redirect("documents:dashboard")
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs: object) -> dict[str, Any]:
+        """Add the empty sign-in form. The sign-in itself is the standard one."""
+        context = super().get_context_data(**kwargs)
+        context["form"] = AuthenticationForm(self.request)
+        return context
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):

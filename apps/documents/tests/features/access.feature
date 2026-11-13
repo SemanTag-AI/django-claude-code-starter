@@ -13,7 +13,6 @@ Feature: Only signed-in users see the register
 
     Examples:
       | page                         |
-      | the start page               |
       | the dashboard                |
       | the list of documents        |
       | the form for a new document  |
@@ -24,13 +23,31 @@ Feature: Only signed-in users see the register
     When he opens <page>
     Then the page opens
     And the page shows no leftover template code
+    And the title of the page is "<title>"
 
     Examples:
-      | page                         |
-      | the dashboard                |
-      | the list of documents        |
-      | the form for a new document  |
-      | the document "Access policy" |
+      | page                         | title         |
+      | the dashboard                | Dashboard     |
+      | the list of documents        | Documents     |
+      | the form for a new document  | New document  |
+      | the document "Access policy" | Access policy |
+
+  Scenario: The start page opens for everybody and says what the register is for
+    When a visitor opens the start page
+    Then the page opens
+    And the page says what the register is for
+    And the page offers the sign-in
+    And the page shows no leftover template code
+
+  Scenario: Signing in from the start page leads to the dashboard
+    Given a visitor who has opened the start page
+    When bob signs in with the form on that page
+    Then he is sent to the dashboard
+
+  Scenario: After signing in a visitor lands on the page that was asked for
+    Given a visitor who was sent to the sign-in page from the list of documents
+    When bob signs in with the form on that page
+    Then he is sent to the list of documents
 
   Scenario: The start page leads a signed-in user to the dashboard
     Given bob is signed in
