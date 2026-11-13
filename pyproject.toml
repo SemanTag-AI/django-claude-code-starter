@@ -1,7 +1,8 @@
 [project]
-name = "django-agent-starter"
+name = "django-claude-code-starter"
 version = "0.1.0"
-description = "A Django and Tailwind starter with a behaviour-first pipeline of coding agents."
+description = "A Django and Tailwind starter in which Claude Code agents work behaviour first: spec, failing test, code, review."
+keywords = ["django", "claude-code", "bdd", "tailwindcss", "pytest-bdd", "ai-agents"]
 authors = [{ name = "Semantag AI B.V.", email = "info@semantag.ai" }]
 readme = "README.md"
 license = "Apache-2.0"

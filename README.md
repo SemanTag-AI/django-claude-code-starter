@@ -1,13 +1,14 @@
-# Django agent starter
+# Django Claude Code starter
 
-A small Django and Tailwind application in which coding agents work behaviour first:
+A small Django and Tailwind application in which Claude Code agents work behaviour first:
 a specification a person approves, then failing tests, then code, then a review
 by an agent that did not write the code. A person merges.
 
 It is a starting point for your own project and a working example of the method.
 Clone it, run one command, and watch a feature go from a sentence to tested code.
 
-Made by [Semantag AI](https://semantag.ai).
+Made by [Semantag AI](https://semantag.ai). It is not a product of Anthropic and is not endorsed by
+Anthropic. Claude and Claude Code are trademarks of Anthropic.
 
 ## What is in the box
 
@@ -46,8 +47,8 @@ There is no file upload, no search and no processing of what a document says. It
 You need [mise](https://mise.jdx.dev/) and, for the agents, [Claude Code](https://code.claude.com/docs). Node is not needed.
 
 ```bash
-git clone https://github.com/semantag/django-agent-starter.git
-cd django-agent-starter
+git clone https://github.com/semantag/django-claude-code-starter.git
+cd django-claude-code-starter
 mise trust
 mise run install   # dependencies and git hooks
 mise run test      # 99 scenarios, all green
@@ -154,6 +155,9 @@ Then ask for something that already exists and see that it does not pretend to h
 
 ## Use the agents in your own project
 
+The agents are written for Claude Code: the folder `.claude/` and the command `/feature` are its
+conventions. The method is not tied to it.
+
 Copy `.claude/` into your repository and write your own `CLAUDE.md` with the same headings:
 the commands, where things go, the order of work and the rules. The agents contain no command
 and no path, so they work for a stack other than Django as long as your `CLAUDE.md` says how to
@@ -185,7 +189,7 @@ what standards such as ISO 27001 and NEN 7510 ask of a development process, take
 than fit in a starter.
 
 Semantag AI gives a training on exactly that, for development teams that work with agents:
-[semantag.ai](https://semantag.ai/nl/?utm_source=github&utm_medium=readme&utm_campaign=django-agent-starter#contact).
+[semantag.ai](https://semantag.ai/nl/?utm_source=github&utm_medium=readme&utm_campaign=django-claude-code-starter#contact).
 
 ## Checked with
 

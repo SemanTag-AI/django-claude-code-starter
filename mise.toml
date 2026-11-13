@@ -54,7 +54,7 @@ run = ["test \"$(git rev-list --count HEAD)\" -gt 0", "gitleaks git --no-banner 
 
 [tasks."docker:build"]
 description = "Make the container image of the register"
-run = "docker build --tag django-agent-starter:local ."
+run = "docker build --tag django-claude-code-starter:local ."
 
 [tasks."docker:up"]
 description = "Run the register and its database in containers, on http://localhost:8080"
