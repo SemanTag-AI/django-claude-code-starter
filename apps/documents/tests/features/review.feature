@@ -56,3 +56,20 @@ Feature: A document is reviewed by somebody who did not submit it
     When an approval of the document "Access policy" without a reviewer is written straight into the register
     Then the register refuses it
     And the document "Access policy" still waits for a review
+
+  Scenario: A decision that is not on the list is not repeated back to the sender
+    Given bob is signed in
+    When he sends the decision "<script>alert(1)</script>" for the document "Access policy"
+    Then the request is not accepted
+    And the answer does not repeat what he sent
+
+  Scenario: The register itself refuses a status that does not exist, even with a reviewer
+    When the status "archived" with bob as reviewer is written straight into the register for the document "Access policy"
+    Then the register refuses it
+    And the document "Access policy" still waits for a review
+
+  Scenario: A review sent without the form's protection against forged requests is refused
+    Given bob is signed in in a client that checks forged requests
+    When he sends an approval of the document "Access policy" without the form's token
+    Then the request is refused
+    And the document "Access policy" still waits for a review

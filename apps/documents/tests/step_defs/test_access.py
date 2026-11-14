@@ -89,3 +89,13 @@ def offers_sign_in(context: dict) -> None:
 def title_is(context: dict, title: str) -> None:
     found = re.search(r"<title>([^<]*)</title>", context["response"].content.decode())
     assert found and html.unescape(found.group(1)).strip() == title
+
+
+@then("the database was asked a question")
+def database_asked(client: Client) -> None:
+    from django.db import connection
+    from django.test.utils import CaptureQueriesContext
+
+    with CaptureQueriesContext(connection) as queries:
+        assert client.get(reverse("health")).status_code == 200
+    assert len(queries) >= 1

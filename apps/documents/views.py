@@ -130,8 +130,9 @@ class ReviewView(LoginRequiredMixin, View):
         try:
             decision = Status(request.POST.get("decision", ""))
             recorded = record_review(document, request.user, decision, timezone.now())
-        except ValueError as refusal:
-            return HttpResponseBadRequest(str(refusal) or "A review is an approval or a rejection.")
+        except ValueError:
+            # A fixed answer: what the sender wrote is never repeated back.
+            return HttpResponseBadRequest("A review is an approval or a rejection.", content_type="text/plain")
         if recorded:
             messages.success(request, f"The document was {decision}.")
         else:
@@ -143,6 +144,10 @@ class HealthView(View):
     """Say whether the application and its database answer. For a load balancer, not for people."""
 
     def get(self, request: HttpRequest) -> HttpResponse:
-        """Answer 200 when a query works. Anything else surfaces as an error, which is the point."""
-        connection.ensure_connection()
+        """Answer 200 when a query works. Anything else surfaces as an error, which is the point.
+
+        A query, not only a connection: a connection kept open for reuse can outlive the database.
+        """
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
         return HttpResponse("ok", content_type="text/plain")

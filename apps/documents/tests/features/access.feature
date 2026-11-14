@@ -76,6 +76,10 @@ Feature: Only signed-in users see the register
     When a visitor opens the health address
     Then the page opens
 
+  Scenario: The health address asks the database a question
+    When a visitor opens the health address
+    Then the database was asked a question
+
   Scenario: A document that does not exist is reported as not found
     Given bob is signed in
     When he opens a document that does not exist

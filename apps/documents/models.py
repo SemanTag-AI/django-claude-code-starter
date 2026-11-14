@@ -39,6 +39,10 @@ class Document(models.Model):
         # still holds when the code above it has a bug.
         constraints = [
             models.CheckConstraint(
+                condition=models.Q(status__in=[status.value for status in Status]),
+                name="status_is_known",
+            ),
+            models.CheckConstraint(
                 condition=models.Q(reviewed_by__isnull=True) | ~models.Q(reviewed_by=models.F("submitted_by")),
                 name="reviewer_is_not_the_submitter",
             ),

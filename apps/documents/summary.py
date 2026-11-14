@@ -22,6 +22,8 @@ class DashboardSummary(BaseModel):
 
 def dashboard_summary(user: AbstractBaseUser, now: datetime) -> DashboardSummary:
     """Count the documents per status, and those that wait for a review by this user."""
+    # Every waiting document is loaded to apply the overdue rule in Python, where it is
+    # written once. Fine for a register of thousands; a larger one counts in the database.
     waiting = list(Document.objects.filter(status=Status.WAITING))
     return DashboardSummary(
         waiting=len(waiting),

@@ -1,7 +1,5 @@
 """Fixtures and steps for the scenarios that drive a real browser."""
 
-import os
-
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -12,9 +10,19 @@ from apps.documents.models import Document
 
 PASSWORD = "a-password-for-the-test-run"
 
-# The browser library runs an event loop in the test thread, and the framework then
-# refuses database work there unless it is told the test knows what it is doing.
-os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
+
+@pytest.fixture(scope="session", autouse=True)
+def _async_unsafe():
+    """Let the framework do database work while the browser library's event loop runs.
+
+    The browser library runs an event loop in the test thread, and the framework then refuses
+    database work there unless told otherwise. The test database is created at session level,
+    after the browser has started, so the flag has to be set for the session. It is autouse in
+    this folder only: `mise run test` deselects these scenarios and never sets it.
+    """
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setenv("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
+        yield
 
 
 @pytest.fixture

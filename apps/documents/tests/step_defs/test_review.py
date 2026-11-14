@@ -2,6 +2,7 @@
 
 from django.db import IntegrityError, transaction
 from django.test import Client
+from django.urls import reverse
 from django.utils import timezone
 from pytest_bdd import given, parsers, scenarios, then, when
 
@@ -83,3 +84,36 @@ def approval_without_reviewer(context: dict, title: str) -> None:
 @then("the register refuses it")
 def register_refuses(context: dict) -> None:
     assert "refusal" in context, "the register accepted what it should have refused"
+
+
+@then("the answer does not repeat what he sent")
+def not_repeated(context: dict) -> None:
+    assert b"<script>" not in context["response"].content
+
+
+@when(
+    parsers.parse(
+        'the status "{status}" with {name} as reviewer is written straight into the register for the document "{title}"'
+    )
+)
+def unknown_status(context: dict, status: str, name: str, title: str) -> None:
+    try:
+        with transaction.atomic():
+            Document.objects.filter(title=title).update(
+                status=status, reviewed_by=user_named(name), reviewed_at=timezone.now()
+            )
+    except IntegrityError as refusal:
+        context["refusal"] = refusal
+
+
+@given("bob is signed in in a client that checks forged requests", target_fixture="client")
+def strict_client() -> Client:
+    strict = Client(enforce_csrf_checks=True)
+    strict.force_login(user_named("bob"))
+    return strict
+
+
+@when(parsers.parse('he sends an approval of the document "{title}" without the form\'s token'))
+def approval_without_token(client: Client, context: dict, title: str) -> None:
+    address = reverse("documents:review", args=[document_titled(title).pk])
+    context["response"] = client.post(address, {"decision": "approved"})

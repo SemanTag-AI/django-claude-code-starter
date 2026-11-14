@@ -43,3 +43,8 @@ Feature: A light and a dark mode
     And the visitor has used the theme switch
     When the visitor signs in as bob
     Then the page is shown in the dark theme
+
+  Scenario: Without scripts the page still follows a dark system
+    Given a visitor whose browser runs no scripts and whose system prefers the dark theme
+    When that visitor opens the sign-in page
+    Then that page is shown in the dark theme

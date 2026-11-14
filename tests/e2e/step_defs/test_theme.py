@@ -43,3 +43,20 @@ def shown_in(page: Page, scheme: str) -> None:
 def switch_says_dark(page: Page) -> None:
     """One name that does not change, and a pressed state that does: that is what a screen reader announces."""
     expect(page.get_by_role("button", name="Dark mode", pressed=True)).to_be_visible()
+
+
+@given("a visitor whose browser runs no scripts and whose system prefers the dark theme", target_fixture="plain_dark")
+def plain_dark(browser, site):
+    context = browser.new_context(java_script_enabled=False, color_scheme="dark")
+    yield context.new_page()
+    context.close()
+
+
+@when("that visitor opens the sign-in page")
+def plain_dark_opens(plain_dark: Page, site) -> None:
+    plain_dark.goto(site.address("login"))
+
+
+@then("that page is shown in the dark theme")
+def plain_dark_shown(plain_dark: Page) -> None:
+    expect(plain_dark.locator("body")).to_have_css("background-color", BACKGROUND["dark"])

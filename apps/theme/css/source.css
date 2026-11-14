@@ -47,6 +47,30 @@
   --danger-soft: #7f1d1d;
 }
 
+/* Without the script nobody can choose, so the page follows the system. The same values
+   as .dark above; the contrast scenarios read them from there. */
+@media (prefers-color-scheme: dark) {
+  html:not([data-js]) {
+    color-scheme: dark;
+    --page: #020617;
+    --surface: #0f172a;
+    --sidebar: #0b1220;
+    --line: #1e293b;
+    --field-line: #64748b;
+    --content: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent-hover: #7dd3fc;
+    --on-accent: #082f49;
+    --ok: #86efac;
+    --ok-soft: #14532d;
+    --warn: #fcd34d;
+    --warn-soft: #78350f;
+    --danger: #fca5a5;
+    --danger-soft: #7f1d1d;
+  }
+}
+
 @theme inline {
   --color-page: var(--page);
   --color-surface: var(--surface);
