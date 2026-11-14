@@ -43,8 +43,13 @@ SECURE_REDIRECT_EXEMPT = [r"^healthz/$"]
 SESSION_COOKIE_SECURE = env.https
 CSRF_COOKIE_SECURE = env.https
 SECURE_HSTS_SECONDS = 365 * 24 * 3600 if env.https else 0
+# Subdomains are covered too, as the deployment check asks. The browsers' preload list is a
+# promise that takes months to withdraw, so it is opt-in through DJANGO_HSTS_PRELOAD.
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env.https
-SECURE_HSTS_PRELOAD = env.https
+SECURE_HSTS_PRELOAD = env.https and env.hsts_preload
+if not SECURE_HSTS_PRELOAD:
+    # The deployment check asks for preload. Leaving it off is a choice, see above.
+    SILENCED_SYSTEM_CHECKS = ["security.W021"]
 if env.behind_proxy:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 

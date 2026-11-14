@@ -42,6 +42,9 @@ class Env(BaseSettings):
     #: On when a proxy in front ends the HTTPS connection and passes ``X-Forwarded-Proto``.
     #: Never on without such a proxy: anybody could then send that header.
     behind_proxy: bool = False
+    #: Ask browsers to put the domain, and every subdomain, on their built-in HTTPS list.
+    #: Hard to undo, so off unless you mean it.
+    hsts_preload: bool = False
 
     database_name: str = ""
     database_user: str = ""
