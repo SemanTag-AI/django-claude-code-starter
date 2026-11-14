@@ -406,6 +406,25 @@ run the tests and where feature files and step definitions live.
 - **The colours are variables.** Every colour has a light and a dark value in one stylesheet, and the page follows the system until a visitor chooses. No JavaScript library, no web font, no Node.
 - **Usable without a mouse, and without the script.** A skip link, a visible focus, a menu that closes on Escape and stays out of the way of the Tab key while it is closed, and scenarios that work out the contrast of the text colours and field edges in both themes. With JavaScript off the menu is simply there. Nobody has listened to it with a screen reader yet.
 
+## Why behaviour first works so well with language models
+
+- **A model writes convincingly, not necessarily correctly.** A scenario with concrete values
+  turns "sounds right" into something that is true or false: overdue on day 31, not on day 30.
+- **Gherkin is plain language.** You approve it in a minute, the model reads exactly what you
+  approved, and the test runs exactly that. One text for three readers.
+- **"Done" lives outside the model.** Without a scenario the model decides when it is finished.
+  With a failing test, done is a fact it cannot talk its way around.
+- **Gaps become questions.** A model fills in missing information silently. Examples on each
+  side of a limit bring that filling-in to the surface before there is code. In our own runs
+  the spec-writer answered a vague request with six questions instead of a guess.
+- **Small steps with precise feedback.** One scenario is a bounded task, and a failing test says
+  exactly what is wrong. A model does far better on that than on one large open request.
+- **It survives a change of model.** The scenarios stay when you switch models. They are the
+  agreement; the model is the one carrying it out.
+
+The limit is just as clear. A vague or wrong scenario gives vague or wrong code that is green.
+The specification is the ceiling, which is why a person approves it.
+
 ## What it gives, and what it costs
 
 The main gain is a fixed bar. Every change goes through the same steps and the same gates,
