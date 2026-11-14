@@ -7,6 +7,8 @@ by an agent that did not write the code. A person merges.
 It is a starting point for your own project and a working example of the method.
 Clone it, run one command, and watch a feature go from a sentence to tested code.
 
+If it helps you, give it a star. That is how other teams find it, and how we see what is worth working out further.
+
 Made by [Semantag AI](https://semantag.ai/en/?utm_source=github&utm_medium=readme&utm_campaign=django-claude-code-starter). It is not a product of Anthropic and is not endorsed by
 Anthropic. Claude and Claude Code are trademarks of Anthropic.
 
