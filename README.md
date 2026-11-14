@@ -406,6 +406,24 @@ run the tests and where feature files and step definitions live.
 - **The colours are variables.** Every colour has a light and a dark value in one stylesheet, and the page follows the system until a visitor chooses. No JavaScript library, no web font, no Node.
 - **Usable without a mouse, and without the script.** A skip link, a visible focus, a menu that closes on Escape and stays out of the way of the Tab key while it is closed, and scenarios that work out the contrast of the text colours and field edges in both themes. With JavaScript off the menu is simply there. Nobody has listened to it with a screen reader yet.
 
+## What it gives, and what it costs
+
+The main gain is a fixed bar. Every change goes through the same steps and the same gates,
+whoever asks for it. A junior developer gets the same specification, the same tests up front
+and the same two reviewers as a veteran. Quality then depends less on who works on it that
+day and more on the setup.
+
+It also moves work, and new bottlenecks appear where it lands:
+
+- **CI/CD.** More changes mean more pipelines. If your runners cannot keep up, everybody waits
+  on a runner instead of on the code.
+- **Review.** A person reads every change before it is merged. Reading becomes the new work,
+  and it is tempting to skim when a lot comes in.
+- **Model time.** Every run costs it, and every agent you add makes a change slower and dearer.
+
+Plan for these from the start. Small changes are quicker to read, and a pipeline that stops at
+the first red test saves runner time.
+
 ## What this is not
 
 It is an example, kept small on purpose. There is no registration, no password reset, no roles
