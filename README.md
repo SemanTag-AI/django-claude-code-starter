@@ -419,7 +419,7 @@ Semantag AI gives a training on exactly that, for development teams that work wi
 |---|---|
 | Last checked | 14 November 2026 |
 | Claude Code | 2.1.323 |
-| Model | Claude Opus 5.5 (14 November), Claude Fable 5.2 (13 November) |
+| Model | Claude Opus 5.5 (14 November 2026), Claude Fable 5.2 (13 November 2026) |
 | Python, Django, Tailwind | 3.14, 6.1, 4.3 |
 
 Agents behave differently from one model version to the next. If a run goes wrong for you,
