@@ -37,6 +37,10 @@ def site(live_server, page: Page):
             page.get_by_label("Name").fill(name)
             page.get_by_label("Password").fill(PASSWORD)
             page.get_by_role("button", name="Sign in").click()
+            # Wait for the next page and its stylesheet. A step that starts earlier can meet a
+            # page whose closed menu is not yet hidden, which made a keyboard scenario flaky.
+            page.wait_for_url(lambda url: "/login/" not in url)
+            page.wait_for_load_state("load")
 
     return Site()
 
