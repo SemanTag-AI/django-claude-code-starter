@@ -36,7 +36,7 @@ package = false
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "project.settings.test"
-testpaths = ["apps", "project"]
+testpaths = ["apps", "project", "tests"]
 python_files = ["test_*.py"]
 addopts = "-ra -m 'not e2e'"
 markers = ["e2e: scenarios that drive a real browser; run them with the browser test command"]
