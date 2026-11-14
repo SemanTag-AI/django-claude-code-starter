@@ -411,7 +411,9 @@ run the tests and where feature files and step definitions live.
 - **A model writes convincingly, not necessarily correctly.** A scenario with concrete values
   turns "sounds right" into something that is true or false: overdue on day 31, not on day 30.
 - **Gherkin is plain language.** You approve it in a minute, the model reads exactly what you
-  approved, and the test runs exactly that. One text for three readers.
+  approved, and the test runs exactly that. One text for three readers. That is how behaviour
+  first bridges business and technology: a product owner, a lawyer or a client reads the same
+  sentences the test runs, without reading code.
 - **"Done" lives outside the model.** Without a scenario the model decides when it is finished.
   With a failing test, done is a fact it cannot talk its way around.
 - **Gaps become questions.** A model fills in missing information silently. Examples on each
