@@ -30,7 +30,7 @@ Use the test-writer agent.
 
 ## Step 3. Implementation
 
-Before you start, record a fingerprint of every protected file, for example with `git hash-object <file>` for each of them. Include the files git does not track yet: the feature file and the step definitions are new, and a snapshot that only knows tracked files would miss them. Keep the list. Do not commit.
+Before you start, record a fingerprint of every protected file. Use the command the project instructions name for it, if there is one, and keep its output; otherwise run `git hash-object` on each protected file. Include the files git does not track yet: the feature file and the step definitions are new, and a snapshot that only knows tracked files would miss them. Write nothing to disk for this, and do not commit.
 
 Then use the implementer agent.
 

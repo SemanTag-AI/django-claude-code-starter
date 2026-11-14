@@ -43,6 +43,12 @@ description = "Run the scenarios that drive a real browser (downloads Chromium o
 depends = ["css"]
 run = ["uv run playwright install chromium", "uv run pytest -m e2e"]
 
+[tasks.fingerprint]
+description = "Print a fingerprint of every protected file, tracked or new, to compare before and after a change"
+# The same list as "Protected files" in CLAUDE.md. Output only, nothing is written.
+run = """git ls-files --cached --others --exclude-standard -- '*tests/*' '*conftest.py' pyproject.toml mise.toml \
+  | sort | while read -r file; do printf '%s %s\n' "$(git hash-object "$file")" "$file"; done"""
+
 [tasks.lint]
 description = "Check formatting and lint rules without changing files"
 run = ["uv run ruff format --check .", "uv run ruff check ."]

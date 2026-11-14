@@ -20,6 +20,7 @@ what is written here. Change the stack, and this is the file to change.
 | Run the development server | `mise run dev` |
 | Fill an empty register with demo data | `mise run demo` |
 | Scan every commit for credentials | `mise run secrets` |
+| Fingerprint the protected files | `mise run fingerprint` |
 | Make the container image | `mise run docker:build` |
 | Run the register and its database in containers | `mise run docker:up` |
 
@@ -40,6 +41,9 @@ read the result:
 - everything in a `tests` folder: feature files, step definitions and the `conftest.py` files next to them
 - `pyproject.toml` and `mise.toml`, because they decide which tests run and how
 - any `conftest.py` anywhere in the repository
+
+`mise run fingerprint` prints one line per protected file, new files included: its fingerprint and
+its path. Run it before and after a step and compare the two lists. It writes nothing.
 
 ## Where things go
 
