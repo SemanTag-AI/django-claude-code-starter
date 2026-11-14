@@ -51,6 +51,7 @@ The third row also settles a question nobody asked: what happens to a fraction o
 - Does every `Then` name a value somebody can compare?
 - Is there an example on each side of every limit, and one exactly on it?
 - What about nothing at all: an empty basket, a zero, a missing field?
+- Is every refusal there? Wrong input, a user who may not, a visitor who is not signed in, the same request twice. A feature with only happy paths has not said what it protects.
 - Does a step name a function, a table or a screen element? Rewrite it as something a user would say.
 - Does one scenario test two rules? Split it.
 - Is anything in the request open to two readings? Do not choose. Write it down as a question.
