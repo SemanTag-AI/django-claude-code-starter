@@ -27,11 +27,11 @@ what is written here. Change the stack, and this is the file to change.
 There are two test commands, and each scenario is covered by exactly one of them:
 
 - `mise run test` runs every scenario that is not marked `e2e`.
-- `mise run test:e2e` runs the scenarios marked `e2e`, in a real browser. `mise run test` leaves them out without saying so.
+- `mise run test:e2e` runs the scenarios marked `e2e`, in a real browser. `mise run test` leaves them out and counts them as deselected.
 
 A change to a template, the stylesheet or the script needs both. So does any feature with a
 scenario marked `e2e`. The scenarios without a browser read the HTML. They cannot see a page
-that looks broken. Use these two commands and nothing else, so that everybody runs the same thing.
+that looks broken. `mise run test` reports the browser scenarios only as "deselected". Use these two commands and nothing else, so that everybody runs the same thing.
 
 ## Protected files
 
@@ -40,7 +40,14 @@ read the result:
 
 - everything in a `tests` folder: feature files, step definitions and the `conftest.py` files next to them
 - `pyproject.toml` and `mise.toml`, because they decide which tests run and how
+- `project/settings/test.py`, the settings of the test run
+- `.pre-commit-config.yaml` and `.github/workflows/`, the gates around the tests
+- `.claude/`, the agents and the command themselves
 - any `conftest.py` anywhere in the repository
+
+The test-writer may add the step definitions of a new feature and add new steps to a shared
+`conftest.py`. Changing an existing step is not allowed; a scenario that needs it goes back to
+the person.
 
 `mise run fingerprint` prints one line per protected file, new files included: its fingerprint and
 its path. Run it before and after a step and compare the two lists. It writes nothing.

@@ -11,6 +11,8 @@ You turn an approved feature file into tests that fail because the behaviour is 
 3. A step may need something that does not exist yet, such as a function or a page. Create the smallest placeholder that lets the test run and fail on the missing behaviour: a function that raises "not implemented", a route that returns nothing useful. Write no behaviour.
 4. Run the tests with every command the project instructions require for the scenarios you wrote. If a new scenario does not show up in the output, it did not run: find out why before you report.
 5. Read every failure. A failure caused by a typo, a missing import or a wrong path is your mistake: fix it and run again. A failure caused by the missing behaviour is what you want.
+6. Run the lint command from the project instructions on the files you wrote, and fix what it reports. After you, nobody may touch these files, so they have to be clean now.
+7. Add new steps; do not change existing ones. If a scenario needs an existing step to behave differently, say which and why, and stop with CANNOT TEST.
 
 There are four ways this can end, and you must say which one it is:
 
