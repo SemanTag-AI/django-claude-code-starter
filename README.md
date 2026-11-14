@@ -14,12 +14,12 @@ Anthropic. Claude and Claude Code are trademarks of Anthropic.
 
 | Part | Where | What it does |
 |---|---|---|
-| Four agents | `.claude/agents/` | `spec-writer`, `test-writer`, `implementer`, `reviewer`. One role each, and no more tools than the role needs |
-| One command | `.claude/commands/feature.md` | `/feature <request>` runs the four agents in order and stops for your approval after the specification |
+| Five agents | `.claude/agents/` | `spec-writer`, `test-writer`, `implementer`, `reviewer`, `security-reviewer`. One role each, and no more tools than the role needs. A minimal set, meant to be extended: see [Add the agents you need](#add-the-agents-you-need) |
+| One command | `.claude/commands/feature.md` | `/feature <request>` runs the agents in order and stops for your approval after the specification |
 | One skill | `.claude/skills/bdd-scenarios/` | How to write scenarios that pin a rule down |
 | Project instructions | `CLAUDE.md` | The commands, the layout and the rules. The agents name no tool themselves: they read this file |
 | An application | `project/`, `apps/` | A document register with a start page, a sign-in, a dashboard and a light and a dark mode |
-| Scenarios | `apps/*/tests/features/`, `project/tests/features/` | 99 that need no browser, 23 that drive a real one |
+| Scenarios | `apps/*/tests/`, `project/tests/`, `tests/e2e/` | 99 that need no browser, 23 that drive a real one. See [Tests](#tests) |
 | Settings | `project/settings/` | `local`, `test`, `staging` and `production`. The last two refuse to start until every secret and address is given |
 | A container | `Dockerfile`, `compose.yaml` | The register with PostgreSQL, to run the whole thing on your own machine |
 | Gates | `.pre-commit-config.yaml`, `.github/workflows/ci.yml` | Lint, checks, both sets of scenarios, a secret scan and a start of the container, outside the agents |
@@ -65,6 +65,170 @@ put this application on a server anybody else can reach without replacing the us
 
 `mise run dev` downloads the Tailwind CLI once, about 110 MB, into `.tailwind/`.
 `mise run test:e2e` runs the browser scenarios and downloads Chromium the first time.
+
+## Tests
+
+Every behaviour starts as a scenario in plain English. A scenario lives in a `.feature` file;
+its step definitions turn each sentence into Python. [pytest-bdd](https://pytest-bdd.readthedocs.io/)
+connects the two, and pytest runs them.
+
+```text
+apps/documents/tests/
+  features/            what the register does: access, review, overdue, submit, dashboard
+  step_defs/           one test_<name>.py per feature file, plus conftest.py with shared steps
+apps/theme/tests/
+  features/            contrast.feature: every text colour is readable in both themes
+project/tests/
+  features/            deployment.feature: the server settings refuse to start half configured
+tests/e2e/
+  features/            navigation.feature, theme.feature: scenarios in a real browser
+  step_defs/           conftest.py starts the site and gives each scenario a fresh database
+```
+
+| Command | Runs | How long |
+|---|---|---|
+| `mise run test` | The 99 scenarios that need no browser | A few seconds |
+| `mise run test:e2e` | The 23 scenarios marked `e2e`, in Chromium | About ten seconds, plus the download of Chromium the first time |
+
+### One feature, start to finish
+
+[`overdue.feature`](apps/documents/tests/features/overdue.feature) pins down one rule, with an
+example on each side of the limit:
+
+```gherkin
+Feature: Documents that wait too long for a review are overdue
+  As somebody who is responsible for the register
+  I want to see which documents have waited more than 30 days for a review
+  So that no document stays unreviewed without anybody noticing
+
+  The rule is "more than 30 full days", not "30 days or more". The second
+  example pins that down, because it is the question people answer differently.
+  The third pins down "full": 30 days and 23 hours is still day 30.
+
+  Scenario Outline: A waiting document becomes overdue after 30 full days
+    Given a document that was submitted <age> ago and waits for a review
+    When somebody looks at the register today
+    Then the document is <state>
+
+    Examples:
+      | age                  | state       |
+      | 29 days              | not overdue |
+      | 30 days              | not overdue |
+      | 30 days and 23 hours | not overdue |
+      | 31 days              | overdue     |
+      | 0 days               | not overdue |
+
+  Scenario Outline: A document that was reviewed is never overdue
+    Given a document that was submitted 90 days ago and was <decision>
+    When somebody looks at the register today
+    Then the document is not overdue
+
+    Examples:
+      | decision |
+      | approved |
+      | rejected |
+```
+
+[`test_overdue.py`](apps/documents/tests/step_defs/test_overdue.py) gives every sentence its
+meaning. `scenarios(...)` turns each scenario, and each row of an `Examples` table, into a test:
+
+```python
+"""Step definitions for overdue.feature."""
+
+from datetime import timedelta
+
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+from pytest_bdd import given, parsers, scenarios, then, when
+
+from apps.documents.choices import Status
+from apps.documents.models import Document
+from apps.documents.rules import is_overdue
+
+scenarios("../features/overdue.feature")
+
+
+def document_from(context: dict, age: timedelta, status: str) -> None:
+    users = get_user_model().objects
+    author = users.create_user(username="author")
+    reviewed = status != Status.WAITING
+    context["now"] = timezone.now()
+    context["document"] = Document.objects.create(
+        title="Access policy",
+        submitted_by=author,
+        submitted_at=context["now"] - age,
+        status=status,
+        reviewed_by=users.create_user(username="reviewer") if reviewed else None,
+        reviewed_at=context["now"] if reviewed else None,
+    )
+
+
+@given(
+    parsers.re(
+        r"a document that was submitted (?P<days>\d+) days(?: and (?P<hours>\d+) hours)? ago and waits for a review"
+    )
+)
+def waiting(context: dict, days: str, hours: str | None) -> None:
+    document_from(context, timedelta(days=int(days), hours=int(hours or 0)), Status.WAITING)
+
+
+@given(parsers.parse("a document that was submitted {days:d} days ago and was {decision}"))
+def reviewed(context: dict, days: int, decision: str) -> None:
+    document_from(context, timedelta(days=days), Status(decision))
+
+
+@when("somebody looks at the register today")
+def look(context: dict) -> None:
+    context["overdue"] = is_overdue(context["document"], context["now"])
+
+
+@then("the document is overdue")
+def overdue(context: dict) -> None:
+    assert context["overdue"] is True
+
+
+@then("the document is not overdue")
+def not_overdue(context: dict) -> None:
+    assert context["overdue"] is False
+```
+
+### One scenario in a browser
+
+From [`theme.feature`](tests/e2e/features/theme.feature). The steps in
+[`test_theme.py`](tests/e2e/step_defs/test_theme.py) drive Chromium with
+[Playwright](https://playwright.dev/python/), and check the colour the browser actually paints,
+so a page without its stylesheet fails too:
+
+```gherkin
+  Scenario: The switch changes the theme
+    Given a visitor whose system prefers the light theme
+    And the visitor has opened the sign-in page
+    When the visitor uses the theme switch
+    Then the page is shown in the dark theme
+    And the theme switch says that the dark mode is on
+```
+
+### How pytest is set up
+
+All of it is in [`pyproject.toml`](pyproject.toml), under `[tool.pytest.ini_options]`:
+
+| Setting | What it does |
+|---|---|
+| `DJANGO_SETTINGS_MODULE = "project.settings.test"` | The test settings: a database in memory, a fast password hasher, no `.env` needed |
+| `testpaths = ["apps", "project", "tests"]` | Where pytest looks |
+| `addopts = "-ra -m 'not e2e'"` | Leaves the browser scenarios out of `mise run test`, and lists anything skipped at the end |
+| `markers = ["e2e: ..."]` | The marker that `mise run test:e2e` selects with `-m e2e` |
+
+### Run part of it
+
+```bash
+uv run pytest apps/documents/tests/step_defs/test_overdue.py      # one feature
+uv run pytest -k "full_days"                                       # scenarios whose name matches
+uv run pytest -m e2e tests/e2e/step_defs/test_theme.py --headed    # watch the browser do it
+```
+
+The project instructions ask agents to use the two `mise` commands only, so that every run is
+the same. These are for you, while you look around.
 
 ## Run it in containers
 
@@ -114,6 +278,8 @@ you: /feature <request>
   implementer      writes code until they pass                 may not touch a test
         |
   reviewer         reads the change against the spec           can read, cannot edit
+  security-        reads the change as an attacker would       can read, cannot edit
+  reviewer
         |
   you merge        no agent pushes to main
 ```
@@ -122,11 +288,67 @@ you: /feature <request>
 
 | Outcome | What it means |
 |---|---|
-| `DONE` | Tests pass, the reviewer found nothing that blocks. You still read and merge |
+| `DONE` | Tests pass, neither reviewer found anything that blocks. You still read and merge |
 | `WAITING FOR APPROVAL` | The scenarios are written and wait for you |
 | `TESTS ALREADY PASS` | Every new scenario passed before any code was written. The behaviour exists, or the scenarios test nothing |
 | `TESTS NOT GREEN` | The implementer could not make them pass, or a test was changed along the way |
-| `NOT READY` | The reviewer found something that blocks. You decide what happens next |
+| `NOT READY` | A reviewer found something that blocks. You decide what happens next |
+
+## Add the agents you need
+
+This is a minimal example. Five agents is the smallest set that shows the method: one writes the
+specification, one the tests, one the code, and two read the result. Your team will need more,
+or different ones. That is expected, and it is not much work.
+
+An agent is one Markdown file in `.claude/agents/`: a name, a description of when to use it, the
+tools it may use, and its instructions. You do not have to write it yourself. In Claude Code, in
+this folder, describe the agent you want and Claude writes the file. Read it before you use it.
+
+Three rules keep an agent useful:
+
+- **One role.** If you cannot say in one sentence when to use it, it is two agents.
+- **As few tools as the role allows.** An agent that only reads cannot break anything.
+- **No stack in the agent.** Commands and paths belong in `CLAUDE.md`, so that the agent survives a change of stack.
+
+Some requests to start from. Paste one into Claude Code and adjust it:
+
+**A product owner**, if requests arrive as one line and the specification keeps guessing:
+
+```text
+Add a product-owner agent in .claude/agents/. It reads a feature request before the spec-writer
+does, and lists the questions the request leaves open: who it is for, what happens at the edges,
+what is out of scope. It may only read. It does not approve anything: the person running
+/feature decides. Then add it to /feature as the first step, before the spec-writer.
+```
+
+**A migration reviewer**, once your data matters:
+
+```text
+Add a migration-reviewer agent in .claude/agents/. It reads every new database migration in a
+change and reports what could lose data or lock a large table, with the file and the line. It may
+only read. Run it in step 4 of /feature next to the other reviewers, and let a blocking finding
+end the run with NOT READY.
+```
+
+**An accessibility reviewer**, if people outside your team use the pages:
+
+```text
+Add an accessibility-reviewer agent in .claude/agents/. It reads the templates and the stylesheet
+a change touches and checks them against WCAG 2.2 level AA: labels, focus, keyboard use, contrast,
+headings. Every finding names the file, the line and who is affected. It may only read. Run it in
+step 4 of /feature.
+```
+
+**A documentation writer**, if the README falls behind:
+
+```text
+Add a documentation-writer agent in .claude/agents/. After /feature ends with DONE, it updates
+README.md and CLAUDE.md where the change made them wrong. It may only edit those two files. Add
+it to /feature as a last step that runs only after DONE.
+```
+
+Every agent you add to `/feature` makes each run slower and costs model time. Add one when you
+have seen the problem it solves, not before.
 
 ## Try it
 
@@ -167,7 +389,7 @@ run the tests and where feature files and step definitions live.
 
 - **One role per agent.** An agent that plans, writes, tests and reviews cannot be judged, because you do not know which part went wrong.
 - **The test comes first.** An agent that writes code and then tests writes tests that fit its code. They pass and prove nothing.
-- **Who writes does not approve.** The reviewer runs with read-only tools and sees the specification and the change, not the reasoning that produced it. The example application applies the same rule to its documents.
+- **Who writes does not approve.** The reviewers run with read-only tools and sees the specification and the change, not the reasoning that produced it. The example application applies the same rule to its documents.
 - **Gates beat instructions.** "Always run the tests" in an instruction file is a request. A pipeline that refuses to merge on a red test is a fact. The file `.claude/settings.json` denies a few commands, which helps, but a setting can be worked around. The real gate is a protected `main` branch on your server.
 - **The colours are variables.** Every colour has a light and a dark value in one stylesheet, and the page follows the system until a visitor chooses. No JavaScript library, no web font, no Node.
 - **Usable without a mouse, and without the script.** A skip link, a visible focus, a menu that closes on Escape and stays out of the way of the Tab key while it is closed, and scenarios that work out the contrast of the text colours and field edges in both themes. With JavaScript off the menu is simply there. Nobody has listened to it with a screen reader yet.

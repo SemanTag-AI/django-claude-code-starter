@@ -2,9 +2,15 @@
 
 ## Reporting a problem
 
-If you find a security problem in this repository, mail info@semantag.ai. Please do not open a
-public issue for it. Say what you found, how to reproduce it and what an attacker could do with it.
-You get an answer within five working days.
+If you find a security problem in this repository, report it privately: on GitHub, open the tab
+**Security** of this repository and choose **Report a vulnerability**. If that is not possible,
+mail info@semantag.ai.
+
+Please do not open a public issue for it. A public issue tells everybody how the problem works
+before there is a fix, and everybody who already uses the starter is exposed until then.
+
+Say what you found, how to reproduce it and what an attacker could do with it. You get an answer
+within five working days.
 
 ## What to expect
 
