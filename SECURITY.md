@@ -28,5 +28,5 @@ These are choices, not oversights. Change them before real people or real docume
   and no password reset.
 - The settings for a server have been checked with the deployment check of the framework and run
   in the container of this repository. They have not run behind a real proxy with HTTPS.
-- `.claude/settings.json` denies a few commands to an agent. A setting can be worked around. The
+- `.claude/settings.json` denies every push and the usual ways to skip a hook to an agent. A setting can be worked around. The
   real gates are a protected `main` branch and the checks in CI.
