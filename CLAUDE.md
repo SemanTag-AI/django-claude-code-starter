@@ -45,7 +45,7 @@ read the result:
 
 - A feature file: `apps/<app>/tests/features/<name>.feature`
 - Its step definitions: `apps/<app>/tests/step_defs/test_<name>.py`. Steps that several features share live in `conftest.py` next to them.
-- Scenarios that need a browser carry the marker `e2e` and live in `apps/theme/tests/`.
+- Scenarios that need a browser carry the marker `e2e` and live in `tests/e2e/`: they walk through more than one app.
 - Business rules: a plain module in the app, such as `apps/documents/rules.py`. Views call rules; rules know nothing about views.
 - Numbers for a page: a function that returns a Pydantic model, such as `apps/documents/summary.py`. The view does no arithmetic.
 - Templates: `apps/<app>/templates/<app>/`. A page behind the sign-in extends `base.html` from `apps/theme`; a page for everybody extends `theme/public.html`.
@@ -71,6 +71,16 @@ read the result:
 - Every page of the register asks for a signed-in user. Only the start page, the sign-in page and the health address are open.
 - A rule that must never be broken is also a constraint in the database, so that it holds when the code has a bug.
 - A value a server cannot run without has no default. The settings stop and name it (`required` in `project/settings/env.py`).
+
+## Security
+
+What this project protects, so that nobody has to guess:
+
+- Every page of the register needs a signed-in user. Only the start page, the sign-in page and the health address are open.
+- A document is reviewed by somebody other than the one who submitted it. The server refuses it, and so does the database.
+- Text that a user wrote is shown as text. Nothing a user wrote is marked as safe in a template.
+- Every request that changes data is a POST with the framework's CSRF token.
+- No key, password or token in the code. Values for a server come from the environment (`project/settings/env.py`).
 
 ## Code style
 

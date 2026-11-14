@@ -3,7 +3,7 @@ description: Take one feature from a sentence to reviewed, tested code. Specific
 argument-hint: <what the feature should do, in one or two sentences>
 ---
 
-Work this request through four steps, one agent per step, in this order:
+Work this request through four steps, in this order. Each step has its own agent; step 4 has two:
 
 $ARGUMENTS
 
@@ -41,19 +41,19 @@ When it replies, take the fingerprints again and compare. A protected file that 
 
 ## Step 4. Review
 
-Use the reviewer agent. Tell it which feature file was approved and which files changed, and give it the change itself: the output of `git diff` for the files git tracks and the full text of every new file. The reviewer cannot run a command, so what you do not hand over it cannot see.
+Use the reviewer agent and the security-reviewer agent. They do not depend on each other, so you may run them at the same time. Tell both which feature file was approved and which files changed, and give both the change itself: the output of `git diff` for the files git tracks and the full text of every new file. They cannot run a command, so what you do not hand over they cannot see.
 
-- READY FOR A PERSON TO READ: end with the outcome DONE.
-- NOT READY: end with the outcome NOT READY and the findings. Fix nothing by yourself. The person decides what happens next.
+- Both report nothing that blocks (READY FOR A PERSON TO READ, NO BLOCKING FINDINGS): end with the outcome DONE.
+- Either reports NOT READY: end with the outcome NOT READY and the findings of both. Fix nothing by yourself. The person decides what happens next.
 
 ## How to end
 
 Always end with exactly one of these five outcomes on its own line, followed by what the person needs in order to act:
 
-- `OUTCOME: DONE`, with the test command, its last lines of output, the files that changed, any scenarios that already passed before the implementation, and the reviewer's remarks. Say that a person still has to read and merge.
+- `OUTCOME: DONE`, with the test commands, their last lines of output, the files that changed, any scenarios that already passed before the implementation, and the remarks of both reviewers. Say that a person still has to read and merge.
 - `OUTCOME: WAITING FOR APPROVAL`, with the scenarios and the open questions.
 - `OUTCOME: TESTS ALREADY PASS`, with the scenarios that passed.
 - `OUTCOME: TESTS NOT GREEN`, with the last test output.
-- `OUTCOME: NOT READY`, with the reviewer's findings.
+- `OUTCOME: NOT READY`, with the findings of the reviewer and the security-reviewer, each under its own heading.
 
 Never report DONE without test output. Do not commit, push or merge.
