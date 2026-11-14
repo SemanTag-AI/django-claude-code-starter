@@ -7,7 +7,7 @@ by an agent that did not write the code. A person merges.
 It is a starting point for your own project and a working example of the method.
 Clone it, run one command, and watch a feature go from a sentence to tested code.
 
-Made by [Semantag AI](https://semantag.ai). It is not a product of Anthropic and is not endorsed by
+Made by [Semantag AI](https://semantag.ai/en/?utm_source=github&utm_medium=readme&utm_campaign=django-claude-code-starter). It is not a product of Anthropic and is not endorsed by
 Anthropic. Claude and Claude Code are trademarks of Anthropic.
 
 ## What is in the box
@@ -310,7 +310,7 @@ Three rules keep an agent useful:
 - **As few tools as the role allows.** An agent that only reads cannot break anything.
 - **No stack in the agent.** Commands and paths belong in `CLAUDE.md`, so that the agent survives a change of stack.
 
-Some requests to start from. Paste one into Claude Code and adjust it:
+Five requests to start from. Paste one into Claude Code and adjust it:
 
 **A product owner**, if requests arrive as one line and the specification keeps guessing:
 
@@ -337,6 +337,16 @@ Add an accessibility-reviewer agent in .claude/agents/. It reads the templates a
 a change touches and checks them against WCAG 2.2 level AA: labels, focus, keyboard use, contrast,
 headings. Every finding names the file, the line and who is affected. It may only read. Run it in
 step 4 of /feature.
+```
+
+**An architect**, once a change can add an app, a model or a connection to another system:
+
+```text
+Add an architect agent in .claude/agents/. For a change that adds an app, a model or a
+connection to another system, it reads the approved feature file and the project
+instructions and proposes where the code goes, which modules change and what the data
+model looks like. It may only read and write one design note. Add it to /feature between
+the approval of the scenarios and the test-writer, and stop for my approval of the note.
 ```
 
 **A documentation writer**, if the README falls behind:
@@ -410,8 +420,13 @@ standard. Showing an auditor that every change was specified, reviewed and trace
 what standards such as ISO 27001 and NEN 7510 ask of a development process, takes more gates
 than fit in a starter.
 
-Semantag AI gives a training on exactly that, for development teams that work with agents:
-[semantag.ai](https://semantag.ai/nl/?utm_source=github&utm_medium=readme&utm_campaign=django-claude-code-starter#contact).
+Semantag AI gives a training on exactly that, for development teams that work with agents.
+[Plan an introduction](https://semantag.ai/en/?utm_source=github&utm_medium=readme&utm_campaign=django-claude-code-starter#contact)
+and we lay your own pipeline next to the standard.
+
+Does the rest of your organisation work with AI as well? The course
+[Working responsibly with AI](https://semantag.ai/en/cursus/verantwoord-werken-met-ai?utm_source=github&utm_medium=readme&utm_campaign=django-claude-code-starter#contact)
+takes one morning or afternoon and is for everybody who uses AI, not only developers.
 
 ## Checked with
 
