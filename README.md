@@ -47,7 +47,7 @@ There is no file upload, no search and no processing of what a document says. It
 You need [mise](https://mise.jdx.dev/) and, for the agents, [Claude Code](https://code.claude.com/docs). Node is not needed.
 
 ```bash
-git clone https://github.com/semantag/django-claude-code-starter.git
+git clone https://github.com/SemanTag-AI/django-claude-code-starter.git
 cd django-claude-code-starter
 mise trust
 mise run install   # dependencies and git hooks
